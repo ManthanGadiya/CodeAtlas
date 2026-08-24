@@ -11,6 +11,18 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Authentication (Phase 1.2, part 1):
+  - `students` and `auth_sessions` tables (Alembic revision `0001`) — the first database-backed module.
+  - Single-user account bootstrap: registration succeeds only while no student exists, then answers 409.
+  - Email + password login with Argon2id hashing, automatic rehash on parameter upgrades, and identical errors for unknown email vs wrong password.
+  - Server-side sessions: opaque tokens in HttpOnly SameSite cookies, only SHA-256 hashes stored, revocation on logout.
+  - In-process sliding-window rate limiting on login attempts (5/minute per IP).
+  - Public `/api/auth/status` endpoint so the frontend can offer first-account creation; credentialed CORS for the Next.js origin.
+  - Timing-safe login verification (constant-cost dummy hash) so account existence cannot be probed by response latency.
+  - Comma-separated `CORS_ORIGINS` env parsing via pydantic-settings `NoDecode` + validator.
+  - Alembic model registry (`app/db/all_models.py`) so future autogenerate sees every ORM module instead of proposing destructive drops.
+  - CI job proving migrations run against real PostgreSQL (`upgrade` → `downgrade` → `upgrade`).
+
 - Engineering foundation (ROADMAP Phase 1.1):
   - Backend application skeleton: FastAPI app factory, environment-driven configuration with safe defaults, and an `/api/healthz` liveness endpoint (`backend/app`).
   - Database layer: SQLAlchemy 2.x engine/session management and an Alembic migration baseline that reads its URL from application settings, keeping credentials out of `alembic.ini`.

@@ -7,8 +7,10 @@ the application starts even with no ``.env`` present.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 # backend/app/core/config.py -> repository root
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -35,6 +37,25 @@ class Settings(BaseSettings):
     # Core functionality must work without external AI (docs/PRD.md NFR-002).
     gemini_api_key: str | None = None
     groq_api_key: str | None = None
+
+    # --- Auth & sessions ---
+    session_cookie_name: str = "codeatlas_session"
+    session_lifetime_minutes: int = 7 * 24 * 60  # 7 days
+
+    # Frontend origins allowed to send credentialed requests.
+    # NoDecode + validator: accept plain comma-separated env values
+    # (pydantic-settings would otherwise demand JSON for list fields).
+    cors_origins: Annotated[list[str], NoDecode] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _split_cors_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
 
 
 @lru_cache

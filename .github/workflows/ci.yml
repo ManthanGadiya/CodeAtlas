@@ -38,3 +38,44 @@ jobs:
 
       - name: Tests (pytest, SQLite — no services required)
         run: pytest -q
+
+  migrations:
+    name: Alembic migrations (PostgreSQL)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: codeatlas
+          POSTGRES_PASSWORD: codeatlas
+          POSTGRES_DB: codeatlas
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U codeatlas"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://codeatlas:codeatlas@localhost:5432/codeatlas
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Upgrade, downgrade, upgrade again (reversibility check)
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head

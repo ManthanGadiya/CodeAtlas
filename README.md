@@ -96,6 +96,10 @@ uvicorn app.main:app --reload
 
 Open `http://127.0.0.1:8000/api/docs` for the interactive API docs; liveness probe at `/api/healthz`.
 
+### Create your account
+
+CodeAtlas has a single student account by design. Open `http://127.0.0.1:8000/api/docs`, expand `POST /api/auth/register`, and create your account once. Afterwards the same docs let you log in and explore every authenticated endpoint.
+
 ### Database (optional until DB-backed features land)
 
 Start your Docker engine, then from the repository root:
