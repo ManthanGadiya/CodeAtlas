@@ -28,11 +28,11 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 | --------- | ---------------------------------------------------- | ------------- |
 | M0 | Foundation specification (`docs/`) | 🟢 Complete |
 | M1 | Engineering foundation (Phase 1.1) | 🟢 Complete |
-| M2 | Application skeleton — auth, problems, editor (Phase 1.2) | 🟡 In Progress |
-| M3 | Secure Python code execution sandbox (Phase 1.3) | 🟡 In Progress — sandbox + API done; C++ deferred by decision; UI editor pending |
-| M4 | Event tracking system (Phase 1.4) | 🔴 Not Started |
-| M5 | Code versioning (Phase 1.5) | 🔴 Not Started |
-| M6 | Basic analytics dashboard (Phase 1.6) | 🔴 Not Started |
+| M2 | Application skeleton — auth, problems, editor (Phase 1.2) | 🟡 Backend complete; Next.js UI in progress |
+| M3 | Secure Python code execution sandbox (Phase 1.3) | 🟢 Python complete; C++ deferred by decision |
+| M4 | Event tracking system (Phase 1.4) | 🟢 Complete |
+| M5 | Code versioning (Phase 1.5) | 🟢 Complete |
+| M6 | Basic analytics dashboard (Phase 1.6) | 🟡 Backend summary API done; dashboard UI in progress |
 
 ## 3. Status Legend
 
@@ -57,7 +57,10 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 - Sessions are static 7-day cookies; refresh-token rotation (security doc §7) is deferred.
 - Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
 - `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
-- No learning intelligence yet: no event stream, mistake detection, or student model — executions are persisted as raw evidence only.
+- No learning intelligence yet: the event stream, artifacts, and analytics are observations only — mistake detection and the learner model are future phases.
+- Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
+- `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
+- Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
 - Frontend not scaffolded yet (Next.js decision frozen; next milestone).
 - Unit tests run on SQLite; PostgreSQL behavior is exercised by the CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
 - Dependency constraints live in `pyproject.toml`; a pinned lockfile is still to be introduced.

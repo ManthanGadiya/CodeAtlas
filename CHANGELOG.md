@@ -11,6 +11,13 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Evidence layer (Phases 1.4, 1.5, and the analytics backend of 1.6):
+  - Learning-event stream: immutable `learning_events` table (Alembic `0006`) with a controlled event vocabulary, per-event schema versions, and an authenticated ingestion endpoint (`POST /api/events`) for client-emitted events.
+  - Code version history: `code_artifacts` table (Alembic `0005`) forming a parent-linked chain per problem with SHA-256 content hashes, deduplication of identical consecutive submissions, and stored unified diffs against the previous version; executions now reference the artifact they ran.
+  - Server-emitted learning events: every Run/Submit records a `CODE_RUN` event (mode, status, pass counts) and a full-pass submit additionally records `PROBLEM_COMPLETED`.
+  - Analytics summary endpoint (`GET /api/analytics/summary`): honest activity observations — run/submit totals, submit success rate, problems attempted/completed, recent activity feed, and per-problem breakdown.
+  - Artifact timestamps use microsecond-precision client-side defaults so same-second submissions order deterministically.
+
 - Code execution engine (Phase 1.3):
   - Docker-isolated Python sandbox: submissions run in containers with network disabled (`--network none`), hard memory and CPU caps, PID limits plus `--init` reaping (fork-bomb protection), read-only root filesystem with a noexec/nosuid/nodev tmpfs, all capabilities dropped, `no-new-privileges`, and a non-root user. The harness is mounted read-only; code and test data travel via stdin.
   - Host-side hardening: bounded tail-keeping stream capture so output-flooding programs cannot exhaust host memory (and the trailing results block survives), explicit UTF-8 decoding immune to host locale, wall-clock timeout with forced container removal, image pre-check that fails fast outside the timeout window when the runner image is missing, and status mapping to SUCCESS / COMPILE_ERROR / RUNTIME_ERROR / TIMEOUT / MEMORY_LIMIT / SYSTEM_ERROR that trusts parsed results over exit codes.

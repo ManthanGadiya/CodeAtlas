@@ -8,6 +8,7 @@ new domain-models module.
 """
 
 import app.auth.models  # noqa: F401
+import app.events.models  # noqa: F401
 import app.execution.models  # noqa: F401
 import app.problems.models  # noqa: F401
 import app.users.models  # noqa: F401

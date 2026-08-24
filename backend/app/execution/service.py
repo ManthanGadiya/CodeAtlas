@@ -1,10 +1,134 @@
 """Execution application service: orchestrates runner, persistence, response."""
 
+import difflib
+import hashlib
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.execution.models import Execution, TestCaseExecution
+from app.events.service import record_event
+from app.execution.models import CodeArtifact, Execution, TestCaseExecution
 from app.execution.runner import RESULTS_SENTINEL, RunOutcome
 from app.problems.models import Problem, TestCase
+
+
+def record_artifact(db: Session, *, student_id, problem: Problem, code: str) -> CodeArtifact:
+    """Store this submission as the newest version in the problem's chain.
+
+    Consecutive identical submissions are deduplicated by content hash;
+    otherwise the artifact links to the previous version with a unified
+    diff (docs/Data_Model.md §14-16).
+    """
+    content_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
+    latest = db.scalar(
+        select(CodeArtifact)
+        .where(
+            CodeArtifact.student_id == student_id,
+            CodeArtifact.problem_id == problem.id,
+        )
+        .order_by(CodeArtifact.created_at.desc())
+        .limit(1)
+    )
+
+    if latest is not None and latest.content_hash == content_hash:
+        return latest
+
+    diff_text = None
+    if latest is not None:
+        diff_text = "\n".join(
+            difflib.unified_diff(
+                latest.source_code.splitlines(),
+                code.splitlines(),
+                fromfile=f"v-{latest.id.hex[:8]}",
+                tofile="submission",
+                lineterm="",
+            )
+        )
+
+    artifact = CodeArtifact(
+        student_id=student_id,
+        problem_id=problem.id,
+        source_code=code,
+        content_hash=content_hash,
+        parent_artifact_id=latest.id if latest is not None else None,
+        diff_text=diff_text,
+    )
+    db.add(artifact)
+    db.commit()
+    return artifact
+
+
+def emit_execution_events(
+    db: Session,
+    *,
+    student_id,
+    problem: Problem,
+    mode: str,
+    outcome: RunOutcome,
+    executed_cases: list[TestCase],
+) -> None:
+    """Record the learning-event trail for one execution (Phase 1.4).
+
+    Faithful to docs/Data_Model.md §11: CODE_RUN summarises the attempt;
+    failure statuses get their documented distinct events; Submit-mode
+    grading additionally records per-case TEST_PASSED / TEST_FAILED.
+    Events are internal evidence — hidden case names may appear here even
+    though they never reach API responses.
+    """
+    passed = sum(1 for result in outcome.results if result.get("passed"))
+    total = len(outcome.results)
+    record_event(
+        db,
+        student_id=student_id,
+        event_type="CODE_RUN",
+        payload={
+            "problem_slug": problem.slug,
+            "mode": mode,
+            "status": outcome.status,
+            "passed": passed,
+            "total": total,
+        },
+    )
+
+    if outcome.status == "COMPILE_ERROR":
+        record_event(
+            db,
+            student_id=student_id,
+            event_type="COMPILATION_FAILED",
+            payload={"problem_slug": problem.slug, "mode": mode},
+        )
+    elif outcome.status == "RUNTIME_ERROR":
+        record_event(
+            db,
+            student_id=student_id,
+            event_type="RUNTIME_FAILED",
+            payload={"problem_slug": problem.slug, "mode": mode},
+        )
+
+    if mode != "submit" or outcome.load_error is not None or outcome.status != "SUCCESS":
+        return
+
+    visibility_by_name = {case.name: case.visibility for case in executed_cases}
+    for case_result in outcome.results:
+        record_event(
+            db,
+            student_id=student_id,
+            event_type=("TEST_PASSED" if case_result.get("passed") else "TEST_FAILED"),
+            payload={
+                "problem_slug": problem.slug,
+                "case_name": case_result["name"],
+                "visibility": visibility_by_name.get(case_result["name"], "hidden"),
+                "error": case_result.get("error"),
+            },
+        )
+
+    if total > 0 and passed == total:
+        record_event(
+            db,
+            student_id=student_id,
+            event_type="PROBLEM_COMPLETED",
+            payload={"problem_slug": problem.slug},
+        )
 
 
 def select_test_cases(problem: Problem, mode: str) -> list[TestCase]:
@@ -23,10 +147,12 @@ def persist_execution(
     mode: str,
     outcome: RunOutcome,
     executed_cases: list[TestCase],
+    artifact: CodeArtifact | None = None,
 ) -> Execution:
     execution = Execution(
         student_id=student_id,
         problem_id=problem.id,
+        code_artifact_id=artifact.id if artifact is not None else None,
         mode=mode,
         status=outcome.status,
         runtime_ms=outcome.runtime_ms,
