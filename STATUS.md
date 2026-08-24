@@ -62,4 +62,4 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 
 ## 5. Next Step
 
-Continue Phase 1.2 — Problem catalog: Skill / Problem / ProblemSkill / TestCase entities (migration 0002), curated seed problems in Python, and auth-guarded list/detail endpoints.
+Continue Phase 1.2 — Frontend skeleton: Next.js scaffold with login/account-bootstrap flow, problem list, problem detail page, and a basic in-browser code editor wired to the API.
