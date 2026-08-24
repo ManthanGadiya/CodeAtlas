@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import health
 from app.auth.routes import router as auth_router
 from app.core.config import get_settings
+from app.problems.routes import router as problems_router
 
 
 def create_app() -> FastAPI:
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router, prefix="/api")
     app.include_router(auth_router, prefix="/api")
+    app.include_router(problems_router, prefix="/api")
     return app
 
 

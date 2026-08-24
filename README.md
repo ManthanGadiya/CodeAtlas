@@ -100,6 +100,16 @@ Open `http://127.0.0.1:8000/api/docs` for the interactive API docs; liveness pro
 
 CodeAtlas has a single student account by design. Open `http://127.0.0.1:8000/api/docs`, expand `POST /api/auth/register`, and create your account once. Afterwards the same docs let you log in and explore every authenticated endpoint.
 
+### Seed the problem catalog
+
+From the `backend/` directory with the virtual environment active (and PostgreSQL running):
+
+```bash
+python -m scripts.seed_problems
+```
+
+This idempotently loads five curated Python problems; run it again safely at any time.
+
 ### Database (optional until DB-backed features land)
 
 Start your Docker engine, then from the repository root:

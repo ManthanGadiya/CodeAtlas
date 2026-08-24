@@ -11,6 +11,12 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Problem catalog (Phase 1.2, part 2):
+  - `skills`, `problems`, `problem_skills`, and `test_cases` tables (Alembic revision `0002`), matching the Version-1 core table set in docs/Data_Model.md §86.
+  - Auth-guarded read endpoints: `GET /api/problems` (catalog) and `GET /api/problems/{slug}` (statement, starter code, skills, visible examples only — hidden evaluation tests never leave the server).
+  - Five curated Python problems seeded idempotently (`python -m scripts.seed_problems`), each with visible examples plus hidden edge/boundary cases deliberately designed to expose boundary-handling behaviour for future mistake analysis.
+  - Function-call evaluation contract on every problem (`function_name(*input_args) == expected_output`) ready for the Phase 1.3 sandbox.
+
 - Authentication (Phase 1.2, part 1):
   - `students` and `auth_sessions` tables (Alembic revision `0001`) — the first database-backed module.
   - Single-user account bootstrap: registration succeeds only while no student exists, then answers 409.
