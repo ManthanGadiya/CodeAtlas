@@ -1,2 +1,33 @@
-.idea
-.opencode
+# IDE / local tooling
+.idea/
+.opencode/
+
+# Environment & secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite3
+
+# Node / Next.js (frontend arrives with Phase 1.2)
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# OS / misc
+.DS_Store
+*.log

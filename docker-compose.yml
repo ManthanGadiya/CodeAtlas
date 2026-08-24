@@ -1,0 +1,23 @@
+# Local development infrastructure only.
+# The db credentials below are throwaway dev defaults matched by the
+# DATABASE_URL default in .env.example — NEVER reuse them in production.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: codeatlas-db
+    environment:
+      POSTGRES_USER: codeatlas
+      POSTGRES_PASSWORD: codeatlas
+      POSTGRES_DB: codeatlas
+    ports:
+      - "5432:5432"
+    volumes:
+      - codeatlas-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codeatlas"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  codeatlas-pgdata:

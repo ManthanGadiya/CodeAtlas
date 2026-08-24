@@ -11,6 +11,14 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Engineering foundation (ROADMAP Phase 1.1):
+  - Backend application skeleton: FastAPI app factory, environment-driven configuration with safe defaults, and an `/api/healthz` liveness endpoint (`backend/app`).
+  - Database layer: SQLAlchemy 2.x engine/session management and an Alembic migration baseline that reads its URL from application settings, keeping credentials out of `alembic.ini`.
+  - Test suite covering configuration defaults and system endpoints; ruff lint/format toolchain plus a pre-commit configuration.
+  - Docker Compose service providing PostgreSQL 16 for local development; the backend also starts without Docker or a reachable database.
+  - GitHub Actions CI pipeline running lint and tests on Python 3.11–3.13 for pushes and pull requests.
+  - Repository hygiene: hardened `.gitignore` and a `.env.example` template documenting all supported environment variables. AI provider keys (Gemini/Groq) are intentionally optional placeholders until the AI gateway milestone.
+
 - Established the foundational project vision for CodeAtlas.
 - Defined CodeAtlas as a personal coding intelligence and adaptive tutoring system.
 - Defined the distinction between CodeAtlas and conventional AI coding assistants.
