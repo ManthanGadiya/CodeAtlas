@@ -11,6 +11,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
+from app.db.all_models import *  # noqa: F401,F403 — register all models on metadata
 from app.db.base import Base
 
 config = context.config
