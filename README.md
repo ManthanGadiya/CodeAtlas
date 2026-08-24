@@ -18,15 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟡 Foundation & Specification Phase — v0.1.0-dev**
+> **🟡 Engineering Foundation Complete — v0.1.0-dev**
 
-The conceptual architecture and core learning-system specifications have been established.
+The conceptual specification (Milestone 0) is complete, and the engineering foundation (Milestone 1, ROADMAP Phase 1.1) is implemented: a FastAPI backend skeleton with a SQLAlchemy/Alembic database layer, lint and test toolchain, CI, and local development infrastructure.
 
 ### Current Milestone
 
-**Milestone 0 — Foundation Specification**
-
-The next milestone is to build the first executable vertical slice:
+**Next: Milestone 2 — Application Skeleton (ROADMAP Phase 1.2)**, followed by the first executable vertical slice:
 
 ```text
 Problem
@@ -50,43 +48,73 @@ The long-term goal is a **research-grade adaptive coding learning system**.
 
 ## ⚡ Quick Start
 
-> **CodeAtlas is currently in the foundation phase. The complete application is not yet available for production use.**
+> **CodeAtlas is in early development. The backend foundation runs today; product features arrive milestone by milestone.**
 
 ### Prerequisites
 
-Planned development environment:
-
 ```text
 Git
-Python
-Node.js
-Package Manager
-PostgreSQL
-Docker
+Python 3.11+ (development currently uses 3.14)
+Node.js 20+ (frontend arrives with Phase 1.2)
+Docker Desktop OR any local PostgreSQL — Docker is convenient, not required
 ```
-
-Exact versions and final infrastructure requirements will be frozen during the engineering-foundation milestone.
 
 ### Clone
 
 ```bash
-git clone <repository-url>
-cd codeatlas
+git clone https://github.com/ManthanGadiya/CodeAtlas.git
+cd CodeAtlas
 ```
 
 ### Environment
 
-Create a local environment file when the implementation begins:
-
 ```bash
+# PowerShell
+Copy-Item .env.example .env
+# macOS/Linux
 cp .env.example .env
 ```
 
-Never commit `.env` or API credentials.
+Never commit `.env` or API credentials. AI provider keys (Gemini/Groq) are optional placeholders — no current feature requires them.
 
-### Development
+### Backend
 
-The development commands will be documented here once the initial backend and frontend foundations are established.
+From the repository root:
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\activate        # macOS/Linux: source .venv/bin/activate
+pip install -e "./backend[dev]"
+```
+
+Run the API (works without a database running):
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+Open `http://127.0.0.1:8000/api/docs` for the interactive API docs; liveness probe at `/api/healthz`.
+
+### Database (optional until DB-backed features land)
+
+Start your Docker engine, then from the repository root:
+
+```bash
+docker compose up -d db
+```
+
+The default `DATABASE_URL` in `.env.example` matches this service.
+
+### Tests & Lint
+
+From the `backend/` directory with the virtual environment active:
+
+```bash
+pytest
+ruff check .
+ruff format --check .
+```
 
 For architectural and implementation details, see:
 
