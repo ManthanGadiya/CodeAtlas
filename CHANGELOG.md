@@ -11,6 +11,13 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Frontend skeleton — Next.js app completing Phase 1.2's UI and closing out ROADMAP Level 1:
+  - Account bootstrap/login flow driven by `/api/auth/status` (single-user registration appears only while no account exists).
+  - Dashboard consuming the analytics summary: totals, submit success rate, completed-problem count, per-problem progress table, recent activity feed, and a first-run empty state.
+  - Problem browser and problem detail pages: statement, skills, visible examples, and starter code rendered from the catalog API.
+  - In-browser code editor with Tab-key indentation wired to Run (visible examples) and Submit (all tests), with full result rendering: status badges, per-case pass/fail detail for visible cases, hidden cases shown as anonymous entries only, compile/runtime error messages, program output tails.
+  - The problem page emits `PROBLEM_OPENED` into the learning-event stream on first visit.
+
 - Evidence layer (Phases 1.4, 1.5, and the analytics backend of 1.6):
   - Learning-event stream: immutable `learning_events` table (Alembic `0006`) with a controlled event vocabulary, per-event schema versions, and an authenticated ingestion endpoint (`POST /api/events`) for client-emitted events.
   - Code version history: `code_artifacts` table (Alembic `0005`) forming a parent-linked chain per problem with SHA-256 content hashes, deduplication of identical consecutive submissions, and stored unified diffs against the previous version; executions now reference the artifact they ran.
