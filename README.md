@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟡 Engineering Foundation Complete — v0.1.0-dev**
+> **🟡 Level 1 (Foundation) Nearly Complete — v0.1.0-dev**
 
-The conceptual specification (Milestone 0) is complete, and the engineering foundation (Milestone 1, ROADMAP Phase 1.1) is implemented: a FastAPI backend skeleton with a SQLAlchemy/Alembic database layer, lint and test toolchain, CI, and local development infrastructure.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, and an analytics summary API are all implemented and CI-verified. The remaining work for Level 1 is the Next.js frontend (login, problem browser, editor with Run/Submit, activity dashboard).
 
 ### Current Milestone
 
-**Next: Milestone 2 — Application Skeleton (ROADMAP Phase 1.2)**, followed by the first executable vertical slice:
+**Next: Frontend skeleton** — completing Phase 1.2's UI and the Phase 1.6 dashboard, which closes out ROADMAP Level 1. After that the project enters Level 2 (personalization): skill taxonomy, mistake detection, and the student model.
 
 ```text
 Problem

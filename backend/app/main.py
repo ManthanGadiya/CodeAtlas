@@ -5,9 +5,11 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.analytics.routes import router as analytics_router
 from app.api.routes import health
 from app.auth.routes import router as auth_router
 from app.core.config import get_settings
+from app.events.routes import router as events_router
 from app.execution.routes import router as execution_router
 from app.problems.routes import router as problems_router
 
@@ -36,6 +38,8 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix="/api")
     app.include_router(problems_router, prefix="/api")
     app.include_router(execution_router, prefix="/api")
+    app.include_router(events_router, prefix="/api")
+    app.include_router(analytics_router, prefix="/api")
     return app
 
 

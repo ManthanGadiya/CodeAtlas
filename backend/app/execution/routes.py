@@ -57,7 +57,19 @@ def _execute(
             detail=f"{exc} Start your Docker engine and try again.",
         ) from exc
 
+    artifact = execution_service.record_artifact(
+        db, student_id=student.id, problem=problem, code=payload.code
+    )
     execution_service.persist_execution(
+        db,
+        student_id=student.id,
+        problem=problem,
+        mode=mode,
+        outcome=outcome,
+        executed_cases=executed_cases,
+        artifact=artifact,
+    )
+    execution_service.emit_execution_events(
         db,
         student_id=student.id,
         problem=problem,
