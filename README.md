@@ -110,6 +110,20 @@ python -m scripts.seed_problems
 
 This idempotently loads five curated Python problems; run it again safely at any time.
 
+### Frontend
+
+From the repository root (Node.js 20+):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000` — create your account there if it is your first run. The frontend talks to the backend at `http://localhost:8000` by default; override with `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`.
+
+> **Hosts must match:** open the app on `localhost` while the backend runs on `localhost` too (or `127.0.0.1` on both). Session cookies are SameSite=Lax, and browsers treat `localhost` and `127.0.0.1` as different sites — a mismatch means the cookie is never sent and login appears to loop.
+
 ### Code execution (Run / Submit)
 
 Executing student code requires a running **Docker engine** — everything else in CodeAtlas works with Docker stopped:

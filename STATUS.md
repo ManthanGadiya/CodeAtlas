@@ -1,26 +1,26 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-08-24  
-> **Project Status:** 🟡 Engineering Foundation Complete — Implementation Begun  
+> **Project Status:** 🟢 Level 1 (Foundation) Complete — Implementation Ongoing  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phase 1.1 done; Phase 1.2 next  
-> **Primary Objective:** Build the first executable vertical slice on top of a reliable foundation.
+> **Development Stage:** ROADMAP Phases 1.1–1.6 all implemented  
+> **Primary Objective:** Begin Level 2 (personalization): skill taxonomy, mistake detection, student model.
 
 ---
 
 # 1. Current State
 
-The specification phase (Milestone 0) is complete: all foundational documents under `docs/` are established.
+ROADMAP Level 1 is complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), and watch an honest dashboard of what was observed — while every execution, code version, and learning event accumulates as evidence for the intelligence layers to come.
 
-ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
+- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics modules)
+- Next.js frontend: login/bootstrap, dashboard, problem browser, problem detail with editor
+- Docker sandboxed execution with CI-verified end-to-end tests
+- Immutable learning-event stream + code artifact version chains + analytics summary
+- GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
-- FastAPI backend skeleton with modular-monolith boundaries (`backend/app`)
-- Environment-driven configuration with safe defaults; AI provider keys optional (`docs/PRD.md` NFR-002)
-- SQLAlchemy 2.x database layer and Alembic migrations baseline
-- Test suite (configuration + system endpoints), ruff lint/format toolchain, pre-commit config
-- GitHub Actions CI running lint and tests across Python 3.11–3.13
-- Docker Compose PostgreSQL for local development — Docker is convenient, not required
-- Hardened `.gitignore`; `.env.example` documents every supported variable
+## Level 1 Exit Criteria — met
+
+The system can answer: *What did the student do? When? What code did they write? What happened when they ran it? How did their code evolve?*
 
 ## 2. Milestone Tracker
 
@@ -28,11 +28,11 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 | --------- | ---------------------------------------------------- | ------------- |
 | M0 | Foundation specification (`docs/`) | 🟢 Complete |
 | M1 | Engineering foundation (Phase 1.1) | 🟢 Complete |
-| M2 | Application skeleton — auth, problems, editor (Phase 1.2) | 🟡 Backend complete; Next.js UI in progress |
-| M3 | Secure Python code execution sandbox (Phase 1.3) | 🟢 Python complete; C++ deferred by decision |
+| M2 | Application skeleton — auth, problems, editor (Phase 1.2) | 🟢 Complete |
+| M3 | Secure Python code execution sandbox (Phase 1.3) | 🟢 Complete; C++ deferred by decision |
 | M4 | Event tracking system (Phase 1.4) | 🟢 Complete |
 | M5 | Code versioning (Phase 1.5) | 🟢 Complete |
-| M6 | Basic analytics dashboard (Phase 1.6) | 🟡 Backend summary API done; dashboard UI in progress |
+| M6 | Basic analytics dashboard (Phase 1.6) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -57,6 +57,7 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 - Sessions are static 7-day cookies; refresh-token rotation (security doc §7) is deferred.
 - Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
 - `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
+- Frontend is a functional skeleton: plain-textarea editor (Monaco/CodeMirror arrives when needed), no frontend test suite yet (build + ESLint are the gate; Playwright e2e planned).
 - No learning intelligence yet: the event stream, artifacts, and analytics are observations only — mistake detection and the learner model are future phases.
 - Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
 - `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
@@ -69,4 +70,4 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 
 ## 5. Next Step
 
-Finish Phase 1.2 — Next.js frontend skeleton with login/account-bootstrap flow, problem list/detail pages, and a Run/Submit-capable code editor wired to the new execution endpoints.
+Level 2 — Personalization (ROADMAP Phase 2.x): skill taxonomy graph, deterministic-first mistake detection over the persisted execution/artifact evidence, the rule-based student skill model, and the first personalized evolution of the dashboard beyond raw observations.
