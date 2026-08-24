@@ -9,7 +9,17 @@ problem includes its evaluation strategy.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, Uuid, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    Uuid,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -81,6 +91,9 @@ class ProblemSkill(Base):
 
 class TestCase(Base):
     __tablename__ = "test_cases"
+    # Execution results are matched back to cases by name; duplicates within
+    # one problem would silently corrupt evidence attribution.
+    __table_args__ = (UniqueConstraint("problem_id", "name"),)
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     problem_id: Mapped[uuid.UUID] = mapped_column(
@@ -89,8 +102,9 @@ class TestCase(Base):
     name: Mapped[str] = mapped_column(String(120))
     input_args: Mapped[list] = mapped_column(JSON)
     expected_output: Mapped[object] = mapped_column(JSON)
-    # Hidden tests evaluate generalisation (docs/Problem_Generator.md §57-58);
-    # they are excluded from API responses.
+    # Hidden tests evaluate generalisation (docs/Problem_Generator.md §57-58):
+    # they never appear in API payloads — grading surfaces only an anonymous
+    # pass/fail for them.
     visibility: Mapped[str] = mapped_column(
         String(16), default="hidden", server_default="hidden"
     )  # visible | hidden

@@ -29,7 +29,7 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 | M0 | Foundation specification (`docs/`) | 🟢 Complete |
 | M1 | Engineering foundation (Phase 1.1) | 🟢 Complete |
 | M2 | Application skeleton — auth, problems, editor (Phase 1.2) | 🟡 In Progress |
-| M3 | Secure Python code execution sandbox (Phase 1.3) | 🔴 Not Started |
+| M3 | Secure Python code execution sandbox (Phase 1.3) | 🟡 In Progress — sandbox + API done; C++ deferred by decision; UI editor pending |
 | M4 | Event tracking system (Phase 1.4) | 🔴 Not Started |
 | M5 | Code versioning (Phase 1.5) | 🔴 Not Started |
 | M6 | Basic analytics dashboard (Phase 1.6) | 🔴 Not Started |
@@ -48,18 +48,22 @@ ROADMAP Phase 1.1 (Engineering Foundation) is implemented:
 
 ## 4. Known Limitations
 
-- Phase 1.2 partially complete: authentication works; problems, editor, and dashboard are not started.
-- Login rate limiting is in-process only (single deployment); shared-state limiting is required before any public exposure. Its per-IP event map also grows unboundedly and keys on direct client IP — behind a reverse proxy everyone shares one bucket.
+- Phase 1.2 partially complete: authentication and the problem catalog work; the editor UI and dashboard are not started.
+- Sandbox trust model (V1, personal tool): harness and student code share one container process, so the single student could forge their own results; acceptable while CodeAtlas is single-user self-improvement, must be revisited for any multi-user/graded scenario.
+- Hidden-test policy decision: hidden cases and their expected outputs never leave the server; a failed submit reports only an anonymous pass/fail per hidden case plus the learner's own error text. This protects generalisation evidence from being hardcoded away.
+- Rate limiting (login and execution limiters) is in-process only; their per-IP event maps grow unboundedly and key on direct client IP — behind a reverse proxy everyone shares one bucket.
+- Per-execution memory usage is not yet measured (`memory_bytes` stays NULL); container-level accounting needs `docker stats` or runtime metrics.
+- Rate limiting (login and execution limiters) is in-process only; their per-IP event maps grow unboundedly and key on direct client IP — behind a reverse proxy everyone shares one bucket.
 - Sessions are static 7-day cookies; refresh-token rotation (security doc §7) is deferred.
 - Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
 - `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
-- No product features yet beyond authentication: no problems, editor, execution, events, or student model.
-- Frontend not scaffolded yet (Next.js decision frozen; arrives within Phase 1.2).
+- No learning intelligence yet: no event stream, mistake detection, or student model — executions are persisted as raw evidence only.
+- Frontend not scaffolded yet (Next.js decision frozen; next milestone).
 - Unit tests run on SQLite; PostgreSQL behavior is exercised by the CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
 - Dependency constraints live in `pyproject.toml`; a pinned lockfile is still to be introduced.
-- Code execution sandbox not started; when it is, student code must never run on the application host.
+- C++ execution deferred by product decision; Python-only for now.
 - Documentation housekeeping pending: `Forgeting_And_Retention.md` filename spelling, lowercase filename references in CHANGELOG, `LICENCE` link in README, garbled fragments in VISION.md / Problem_Statement.md.
 
 ## 5. Next Step
 
-Continue Phase 1.2 — Frontend skeleton: Next.js scaffold with login/account-bootstrap flow, problem list, problem detail page, and a basic in-browser code editor wired to the API.
+Finish Phase 1.2 — Next.js frontend skeleton with login/account-bootstrap flow, problem list/detail pages, and a Run/Submit-capable code editor wired to the new execution endpoints.

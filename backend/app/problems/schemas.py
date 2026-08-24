@@ -14,11 +14,12 @@ class ProblemSummary(BaseModel):
 
 
 class VisibleTestCase(BaseModel):
-    """A student-visible example. Hidden test cases never leave the server.
+    """A student-visible example.
 
-    `test_type` is deliberately omitted: revealing which examples are
-    edge/boundary probes would undermine diagnostic integrity
-    (docs/DESIGN.md §23).
+    Hidden test cases — and their expected outputs — never leave the
+    server; a failed submit only reports an anonymous pass/fail for them.
+    `test_type` is also omitted: revealing which examples are edge/boundary
+    probes would undermine diagnostic integrity (docs/DESIGN.md §23).
     """
 
     name: str

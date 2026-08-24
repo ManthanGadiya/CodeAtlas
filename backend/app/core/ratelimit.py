@@ -38,3 +38,6 @@ class SlidingWindowLimiter:
 
 # Login attempts are strictly limited; register/logout are cheap operations.
 login_limiter = SlidingWindowLimiter(max_events=5, window_seconds=60.0)
+
+# Code executions are expensive operations (security doc §16).
+execution_limiter = SlidingWindowLimiter(max_events=10, window_seconds=60.0)
