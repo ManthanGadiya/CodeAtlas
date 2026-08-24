@@ -94,11 +94,15 @@ def test_real_container_enforces_memory_limit(seeded_client, engine_ready):
 
 
 def test_real_container_blocks_network(seeded_client, engine_ready):
+    # IP literal on purpose: DNS resolution can hang well past the wall
+    # clock on a network-less container, while connect() to a routable
+    # address answers immediately (ENETUNREACH) or succeeds if networking
+    # were ever wrongly enabled.
     solution = (
         "import socket\n"
         "def two_sum(nums, target):\n"
         "    try:\n"
-        "        socket.create_connection(('example.com', 80), timeout=2)\n"
+        "        socket.create_connection(('1.1.1.1', 443), timeout=3)\n"
         "        return 'network-open'\n"
         "    except OSError:\n"
         "        return 'network-blocked'\n"
