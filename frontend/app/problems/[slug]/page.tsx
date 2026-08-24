@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { ApiError, api, type ExecutionResult, type ProblemDetail } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { ExecutionPanel } from "@/components/ExecutionPanel";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function ProblemPage() {
   const params = useParams<{ slug: string }>();
@@ -99,7 +100,19 @@ export default function ProblemPage() {
     );
   }
 
-  if (!problem) return <p className="text-neutral-500">Loading…</p>;
+  if (!problem) {
+    return (
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="space-y-4">
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-20" />
+        </div>
+        <Skeleton className="h-[22rem]" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -158,18 +171,18 @@ export default function ProblemPage() {
           <button
             onClick={() => execute("run")}
             disabled={running !== null}
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100 disabled:opacity-50"
+            className="btn-secondary"
           >
             {running === "run" ? "Running…" : "▶ Run examples"}
           </button>
           <button
             onClick={() => execute("submit")}
             disabled={running !== null}
-            className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+            className="btn-primary"
           >
             {running === "submit" ? "Submitting…" : "Submit"}
           </button>
-          <span className="ml-auto self-center text-xs text-neutral-400">
+          <span className="ml-auto self-center text-xs text-[var(--ink-faint)]">
             Submit grades hidden cases too
           </span>
         </div>

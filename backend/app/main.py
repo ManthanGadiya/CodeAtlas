@@ -2,8 +2,10 @@
 
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, RedirectResponse
+from sqlalchemy.exc import OperationalError
 
 from app.analytics.routes import router as analytics_router
 from app.api.routes import health
@@ -33,6 +35,19 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type"],
     )
+
+    @app.exception_handler(OperationalError)
+    async def database_unavailable(request: Request, exc: OperationalError):
+        """Unreachable database answers a clean 503 instead of a traceback."""
+        logging.error("Database unavailable on %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=503,
+            content={"detail": ("Database unavailable. Start it with: docker compose up -d db")},
+        )
+
+    @app.get("/", include_in_schema=False)
+    def root() -> RedirectResponse:
+        return RedirectResponse(url="/api/docs")
 
     app.include_router(health.router, prefix="/api")
     app.include_router(auth_router, prefix="/api")

@@ -17,7 +17,13 @@ def _create_engine():
     settings = get_settings()
     if settings.database_url.startswith("sqlite"):
         return create_engine(settings.database_url, connect_args={"check_same_thread": False})
-    return create_engine(settings.database_url, pool_pre_ping=True)
+    # Short connect timeout: an unreachable database should fail in ~3s with a
+    # clean 503, not hang each request for the driver's default (~30s).
+    return create_engine(
+        settings.database_url,
+        pool_pre_ping=True,
+        connect_args={"connect_timeout": 3},
+    )
 
 
 engine = _create_engine()
