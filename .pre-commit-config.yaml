@@ -1,0 +1,11 @@
+# CodeAtlas pre-commit hooks.
+# Install once per clone:  pip install pre-commit && pre-commit install
+# CI enforces the same checks, so this is a convenience, not a requirement.
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
