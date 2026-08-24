@@ -110,6 +110,16 @@ python -m scripts.seed_problems
 
 This idempotently loads five curated Python problems; run it again safely at any time.
 
+### Code execution (Run / Submit)
+
+Executing student code requires a running **Docker engine** — everything else in CodeAtlas works with Docker stopped:
+
+```bash
+docker pull python:3.12-alpine   # one-time runner image
+```
+
+With the engine running, authenticated submissions execute in an isolated container (no network, capped CPU/memory/processes, read-only filesystem). Endpoints: `POST /api/problems/{slug}/run` (visible examples) and `POST /api/problems/{slug}/submit` (all tests, hidden ones included). Without the engine you get a clear `503` telling you to start it.
+
 ### Database (optional until DB-backed features land)
 
 Start your Docker engine, then from the repository root:

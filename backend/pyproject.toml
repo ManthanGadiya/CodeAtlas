@@ -38,3 +38,6 @@ select = ["E", "F", "I", "W", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "docker: tests that require a working Docker engine (deselected with -m 'not docker')",
+]

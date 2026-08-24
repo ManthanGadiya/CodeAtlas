@@ -46,7 +46,11 @@ def seed_problems(db: Session) -> int:
         problem.estimated_minutes = spec["estimated_minutes"]
 
         # Replace evaluation data wholesale so fixes always propagate.
+        # Flush after clearing so DELETEs reach the database before the
+        # replacement INSERTs (the (problem_id, name) unique constraint
+        # would otherwise see both generations in one flush).
         problem.test_cases.clear()
+        db.flush()
         for order, case in enumerate(spec["test_cases"]):
             problem.test_cases.append(
                 TestCase(

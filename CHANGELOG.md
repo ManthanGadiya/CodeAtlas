@@ -11,6 +11,15 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Code execution engine (Phase 1.3):
+  - Docker-isolated Python sandbox: submissions run in containers with network disabled (`--network none`), hard memory and CPU caps, PID limits plus `--init` reaping (fork-bomb protection), read-only root filesystem with a noexec/nosuid/nodev tmpfs, all capabilities dropped, `no-new-privileges`, and a non-root user. The harness is mounted read-only; code and test data travel via stdin.
+  - Host-side hardening: bounded tail-keeping stream capture so output-flooding programs cannot exhaust host memory (and the trailing results block survives), explicit UTF-8 decoding immune to host locale, wall-clock timeout with forced container removal, image pre-check that fails fast outside the timeout window when the runner image is missing, and status mapping to SUCCESS / COMPILE_ERROR / RUNTIME_ERROR / TIMEOUT / MEMORY_LIMIT / SYSTEM_ERROR that trusts parsed results over exit codes.
+  - Strict result comparison rejecting Python's bool/int conflation while treating ints and floats as numerically comparable.
+  - Hidden-test policy enforced in code: hidden cases and their expected outputs never leave the server — a failed submit reports an anonymous pass/fail per hidden case plus the learner's own error text.
+  - `POST /api/problems/{slug}/run` grades visible examples; `POST /api/problems/{slug}/submit` grades everything. Both auth-guarded and rate-limited (10/min); 503 with guidance when Docker is unavailable.
+  - Every execution persisted as learning evidence (`executions`, `test_case_executions`; Alembic `0003`), plus a uniqueness guard on `(problem_id, name)` for test cases (Alembic `0004`) protecting evidence attribution.
+  - Tests: harness protocol without Docker; container-flag tripwire unit tests so a weakened sandbox configuration fails CI; API behaviour via fake runner; real-container e2e (correct grading, infinite-loop kill, memory limit, network denial, read-only filesystem) auto-skipped without Docker.
+
 - Problem catalog (Phase 1.2, part 2):
   - `skills`, `problems`, `problem_skills`, and `test_cases` tables (Alembic revision `0002`), matching the Version-1 core table set in docs/Data_Model.md §86.
   - Auth-guarded read endpoints: `GET /api/problems` (catalog) and `GET /api/problems/{slug}` (statement, starter code, skills, visible examples only — hidden evaluation tests never leave the server).

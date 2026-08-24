@@ -42,6 +42,17 @@ class Settings(BaseSettings):
     session_cookie_name: str = "codeatlas_session"
     session_lifetime_minutes: int = 7 * 24 * 60  # 7 days
 
+    # --- Code execution sandbox ---
+    # Student code runs ONLY inside a Docker container with network disabled,
+    # capped CPU/memory/processes, and a read-only filesystem. The API answers
+    # 503 when the engine is unavailable; everything else works without Docker.
+    docker_image: str = "python:3.12-alpine"
+    exec_memory_mb: int = 256
+    exec_cpus: float = 0.5
+    exec_pids_limit: int = 64
+    exec_timeout_seconds: int = 10
+    exec_output_limit_bytes: int = 65_536
+
     # Frontend origins allowed to send credentialed requests.
     # NoDecode + validator: accept plain comma-separated env values
     # (pydantic-settings would otherwise demand JSON for list fields).
