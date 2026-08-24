@@ -1,26 +1,151 @@
 @import "tailwindcss";
 
+/*
+  CodeAtlas visual tokens — product register (PRODUCT.md):
+  calm, technical, light-only for now. One neutral ramp + one accent
+  used only for primary actions and state. Semantic states standardized
+  here so every screen shares the same vocabulary.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --surface: #ffffff;
+  --ink: #171717;
+  --ink-muted: #525252;
+  --ink-faint: #a3a3a3;
+  --line: #e5e5e5;
+  --accent: #1f6feb;
+
+  --focus-ring: 0 0 0 2px var(--background), 0 0 0 4px color-mix(in oklab, var(--accent) 55%, transparent);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    sans-serif;
+}
+
+code,
+pre,
+textarea.font-mono {
+  font-family:
+    ui-monospace,
+    "Cascadia Code",
+    "JetBrains Mono",
+    Consolas,
+    monospace;
+}
+
+/* Shared interactive vocabulary ------------------------------------------- */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background-color 160ms var(--ease-out-quart),
+    opacity 160ms var(--ease-out-quart);
+}
+.btn-primary:hover { background: #333; }
+.btn-primary:active { background: #000; }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    border-color 160ms var(--ease-out-quart),
+    background-color 160ms var(--ease-out-quart);
+}
+.btn-secondary:hover { border-color: var(--ink-faint); background: #f5f5f5; }
+.btn-secondary:active { background: #ededed; }
+.btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-secondary:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--ink);
+  transition: border-color 160ms var(--ease-out-quart);
+}
+.field::placeholder { color: var(--ink-faint); }
+.field:hover { border-color: #d4d4d4; }
+.field:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+.card-surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skeleton loading --------------------------------------------------------- */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background: #ebebeb;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.65),
+    transparent
+  );
+  animation: skeleton-wave 1.4s infinite;
+}
+@keyframes skeleton-wave {
+  100% { transform: translateX(100%); }
 }

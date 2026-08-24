@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ApiError, api, type AnalyticsSummary } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/useAuth";
+import { Skeleton } from "@/components/Skeleton";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -44,7 +45,6 @@ export default function DashboardPage() {
   }
 
   const greeting = student.display_name ?? student.email.split("@")[0];
-
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">
@@ -60,7 +60,16 @@ export default function DashboardPage() {
         </p>
       )}
 
-      {!error && summary === null && <p className="mt-6 text-neutral-500">Loading…</p>}
+      {!error && summary === null && (
+        <div className="mt-6 space-y-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[0, 1, 2, 3].map((index) => (
+              <Skeleton key={index} className="h-20" />
+            ))}
+          </div>
+          <Skeleton className="h-40" />
+        </div>
+      )}
 
       {summary !== null && (
         <>
@@ -73,7 +82,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 href="/problems"
-                className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
+                className="btn-primary mt-4"
               >
                 Start practicing
               </Link>

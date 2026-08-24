@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ApiError, api, type ProblemSummary } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/useAuth";
+import { Skeleton } from "@/components/Skeleton";
 
 const DIFFICULTY_STYLES: Record<string, string> = {
   easy: "bg-emerald-100 text-emerald-800",
@@ -48,10 +49,16 @@ export default function ProblemsPage() {
       </p>
 
       {error && (
-        <p className="mt-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p role="alert" className="mt-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
 
-      {!error && problems === null && <p className="mt-6 text-neutral-500">Loading…</p>}
+      {!error && problems === null && (
+        <ul className="mt-6 space-y-3">
+          {[0, 1, 2].map((index) => (
+            <Skeleton key={index} className="h-16" />
+          ))}
+        </ul>
+      )}
 
       {problems !== null && (
         <ul className="mt-6 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
