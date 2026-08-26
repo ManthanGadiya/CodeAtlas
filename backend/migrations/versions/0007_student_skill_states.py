@@ -71,9 +71,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_mastery_snapshots_student_skill_time", table_name="mastery_snapshots"
-    )
+    op.drop_index("ix_mastery_snapshots_student_skill_time", table_name="mastery_snapshots")
     op.drop_index("ix_mastery_snapshots_skill_id", table_name="mastery_snapshots")
     op.drop_index("ix_mastery_snapshots_student_id", table_name="mastery_snapshots")
     op.drop_table("mastery_snapshots")
