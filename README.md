@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟡 Level 1 (Foundation) Nearly Complete — v0.1.0-dev**
+> **🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, and an analytics summary API are all implemented and CI-verified. The remaining work for Level 1 is the Next.js frontend (login, problem browser, editor with Run/Submit, activity dashboard).
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. The first Level 2 piece has landed: student skill-state tables with a rule-based mastery update engine that keeps every mastery change explainable through an append-only snapshot trail.
 
 ### Current Milestone
 
-**Next: Frontend skeleton** — completing Phase 1.2's UI and the Phase 1.6 dashboard, which closes out ROADMAP Level 1. After that the project enters Level 2 (personalization): skill taxonomy, mistake detection, and the student model.
+**Now: Level 2 personalization** — wiring execution evidence into skill states via each problem's skill mapping, then deterministic-first mistake detection and the first personalized evolution of the dashboard.
 
 ```text
 Problem
