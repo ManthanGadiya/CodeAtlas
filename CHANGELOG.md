@@ -11,6 +11,15 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Deterministic mistake detection (ROADMAP Phase 2.2, deterministic layer of docs/Mistake_Taxonomy.md §50):
+  - New mistakes domain: `mistake_categories` reference table seeded with the documented M01–M24 codes (Alembic `0008`, deterministic ids shared with runtime), a `mistakes` table linking each detection to its execution/artifact with severity, confidence, an evidence note, and a resolution lifecycle, plus `mistake_patterns` recurrence counters keyed by (student, category, skill) so one failure type aggregating across different problems becomes visible.
+  - Failed submits are classified from signals the runner already produced — no LLM in this path: `COMPILE_ERROR` → M01 Syntax Error (0.95), `RUNTIME_ERROR` → M03 Runtime Error (0.85), `TIMEOUT`/`MEMORY_LIMIT` → M07 Complexity Mistake (0.65), all-visible-pass-but-hidden-fail → M10 Edge Case Failure (0.7), other wrong answers → M04 Logic Error (0.5). `SYSTEM_ERROR` is never attributed to the student.
+  - Every detection emits a new server-emitted `MISTAKE_DETECTED` learning event carrying category code, severity, confidence, and the mistake id.
+  - A fully passing submit resolves earlier unresolved mistakes on the same problem (taxonomy §45–46 lifecycle).
+  - Compile-error submits now also carry weak negative skill evidence, closing the gap flagged when evidence wiring landed.
+  - Run-mode attempts remain unclassified in V1 (exploratory practice).
+  - Tests: pure classifier rules plus end-to-end submit flows covering event emission, evidence coupling, the resolution lifecycle, run-mode isolation, and cross-problem recurrence through a shared skill.
+
 - Submission evidence wiring — completes the Phase 2.4 learning loop, so mastery now accumulates from real student activity:
   - Full-pass submits update every skill linked to the problem: first-attempt solves carry strength 1.0, retries taper to 0.7 (attempts 2–3) and 0.5 (4+); failed submits count as ambiguous negative evidence (0.4); compile/runtime/timeout outcomes as weak negatives (0.3).
   - Primary skills receive full weight and supporting skills half (docs/Data_Model.md §28); each snapshot records its reason plus the problem slug so any dashboard value stays explainable.

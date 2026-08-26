@@ -44,12 +44,17 @@ def derive_submission_evidence(
     """Pure mapping from one graded Submit outcome to evidence.
 
     ``attempt_number`` counts the current submission; returns None when the
-    outcome carries no mastery signal at all.
+    outcome carries no mastery signal at all. Student-attributable failure
+    statuses carry weak negative evidence even with zero graded cases — a
+    compile error is still evidence, and mistake detection (Phase 2.2)
+    explains *why* separately.
     """
-    if total == 0:
-        return None
+    if status == "SYSTEM_ERROR":
+        return None  # infrastructure failure, never attributed to the student
 
     if status == "SUCCESS":
+        if total == 0:
+            return None
         if passed == total:
             if attempt_number <= 1:
                 strength = FIRST_ATTEMPT_STRENGTH
