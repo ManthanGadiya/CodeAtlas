@@ -11,6 +11,13 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Submission evidence wiring — completes the Phase 2.4 learning loop, so mastery now accumulates from real student activity:
+  - Full-pass submits update every skill linked to the problem: first-attempt solves carry strength 1.0, retries taper to 0.7 (attempts 2–3) and 0.5 (4+); failed submits count as ambiguous negative evidence (0.4); compile/runtime/timeout outcomes as weak negatives (0.3).
+  - Primary skills receive full weight and supporting skills half (docs/Data_Model.md §28); each snapshot records its reason plus the problem slug so any dashboard value stays explainable.
+  - Run-mode executions never touch mastery: visible-example success cannot separate knowledge from familiarity (docs/Learning_Model.md §12.4).
+  - Zero-graded-case submissions (harness-level errors) are skipped entirely rather than misattributed.
+  - Tests: end-to-end submit/run flows against the fake runner asserting state creation, role weighting, failure direction, attempt counting that ignores runs, plus pure derivation-rule coverage.
+
 - Student skill model foundation (ROADMAP Phase 2.4 begins):
   - `student_skill_states` and `mastery_snapshots` tables (Alembic `0007`): one revisable mastery belief per (student, skill) pair — mastery, confidence, retention placeholder, evidence count — plus an append-only audit trail so any value can be explained by replaying its change history.
   - Rule-based mastery update engine (`app/skills/service.py`, model version `mastery-rule-v1`) implementing Learning_Model Stage 1: each evidence observation moves mastery an exponential-moving-average step toward what it implies, scaled by evidence strength in [0, 1]; confidence rises separately as consistent signal accumulates and never gates further learning; estimates clamp to [0.02, 0.98] so no belief becomes unrevisable; every update writes a reason-bearing snapshot (docs/Learning_Model.md rules 3, 6, 12).

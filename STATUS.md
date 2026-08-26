@@ -3,8 +3,8 @@
 > **Last Updated:** 2026-08-26  
 > **Project Status:** 🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6 all implemented; Phase 2.4 started  
-> **Primary Objective:** Build the student skill model: skill-state persistence, evidence wiring, mistake detection.
+> **Development Stage:** ROADMAP Phases 1.1–1.6 and 2.4 implemented  
+> **Primary Objective:** Deterministic-first mistake detection over the persisted evidence, then the behavior model and personalized dashboard.
 
 ---
 
@@ -33,7 +33,8 @@ The system can answer: *What did the student do? When? What code did they write?
 | M4 | Event tracking system (Phase 1.4) | 🟢 Complete |
 | M5 | Code versioning (Phase 1.5) | 🟢 Complete |
 | M6 | Basic analytics dashboard (Phase 1.6) | 🟢 Complete |
-| M7 | Student skill-state tables + rule-based mastery engine (Phase 2.4 begins) | 🟢 Complete (unwired) |
+| M7 | Student skill-state tables + rule-based mastery engine (Phase 2.4 begins) | 🟢 Complete |
+| M8 | Submission evidence wiring into mastery states (Phase 2.4 completes) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -59,9 +60,10 @@ The system can answer: *What did the student do? When? What code did they write?
 - Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
 - `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
 - Frontend is a functional skeleton: plain-textarea editor (Monaco/CodeMirror arrives when needed), no frontend test suite yet (build + ESLint are the gate; Playwright e2e planned).
-- The mastery engine has no callers yet: learning events are not yet translated into skill evidence, so `student_skill_states` stays empty until the Phase 2.4 evidence wiring lands.
-- Mastery engine weights (`BASE_STEP=0.08`, `CONFIDENCE_GAIN=0.15`, prior `0.3`) are explicit initial design assumptions, not validated constants; they need evaluation against simple baselines (docs/Evaluation_Framework.md) before any claim of learning value.
+- Mastery updates fire only on Submit outcomes; compile/runtime-error submits currently produce no skill evidence at all (zero graded cases) — Phase 2.2 mistake detection will attribute them properly.
+- Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions, not validated constants; they need evaluation against simple baselines (docs/Evaluation_Framework.md) before any claim of learning value.
 - Retention is stored as a nullable placeholder on skill state; no decay model computes it yet.
+- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics arrive with mistake detection.
 - Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
 - `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
 - Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
@@ -73,4 +75,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Continue Phase 2.4: translate the already-persisted evidence into skill observations — map problems to their primary skills via `problem_skills`, derive positive/negative evidence with a strength value from submit outcomes (independent success vs assisted success vs failure), and call `apply_evidence` from the submission path so mastery states start accumulating. Deterministic-first mistake detection (Phase 2.2) then feeds richer evidence; the personalized dashboard (Phase 2.6) consumes the resulting states.
+Deterministic-first mistake detection (Phase 2.2): classify failures already persisted in the event stream and execution records (compile vs runtime vs wrong-answer patterns, repeated identical mistakes) so evidence strengths stop being outcome-only and start reflecting *why* a submit failed. That feeds richer mastery updates, then the behavior model (2.5) and the first personalized dashboard view of skill states (2.6).

@@ -10,6 +10,7 @@ from app.execution import schemas
 from app.execution import service as execution_service
 from app.execution.runner import DockerPythonRunner, RunnerUnavailableError, get_runner
 from app.problems import service as problem_service
+from app.skills import evidence as skill_evidence
 
 router = APIRouter(prefix="/problems", tags=["execution"])
 
@@ -76,6 +77,15 @@ def _execute(
         mode=mode,
         outcome=outcome,
         executed_cases=executed_cases,
+    )
+    skill_evidence.record_submission_evidence(
+        db,
+        student_id=student.id,
+        problem=problem,
+        mode=mode,
+        status=outcome.status,
+        passed=sum(1 for result in outcome.results if result.get("passed")),
+        total=len(outcome.results),
     )
 
     response = execution_service.build_response(
