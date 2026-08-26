@@ -22,6 +22,9 @@ SERVER_EVENT_TYPES = {
     "TEST_PASSED",
     "TEST_FAILED",
     "PROBLEM_COMPLETED",
+    # Phase 2.2: deterministic mistake detection (docs/Mistake_Taxonomy.md).
+    # Payload carries category_code/severity/confidence + mistake_id link.
+    "MISTAKE_DETECTED",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

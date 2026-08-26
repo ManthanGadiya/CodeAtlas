@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-08-26  
-> **Project Status:** 🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway  
+> **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) In Progress  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6 and 2.4 implemented  
-> **Primary Objective:** Deterministic-first mistake detection over the persisted evidence, then the behavior model and personalized dashboard.
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2 (deterministic layer), 2.4 implemented  
+> **Primary Objective:** Behavior model (Phase 2.5) and the first personalized dashboard view of skill states and mistakes (Phase 2.6).
 
 ---
 
@@ -35,6 +35,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M6 | Basic analytics dashboard (Phase 1.6) | 🟢 Complete |
 | M7 | Student skill-state tables + rule-based mastery engine (Phase 2.4 begins) | 🟢 Complete |
 | M8 | Submission evidence wiring into mastery states (Phase 2.4 completes) | 🟢 Complete |
+| M9 | Deterministic mistake detection: taxonomy, classification, recurrence (Phase 2.2, deterministic layer) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -60,10 +61,12 @@ The system can answer: *What did the student do? When? What code did they write?
 - Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
 - `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
 - Frontend is a functional skeleton: plain-textarea editor (Monaco/CodeMirror arrives when needed), no frontend test suite yet (build + ESLint are the gate; Playwright e2e planned).
-- Mastery updates fire only on Submit outcomes; compile/runtime-error submits currently produce no skill evidence at all (zero graded cases) — Phase 2.2 mistake detection will attribute them properly.
-- Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions, not validated constants; they need evaluation against simple baselines (docs/Evaluation_Framework.md) before any claim of learning value.
+- Mistake detection classifies at most one primary category per submission from runner signals only; multi-label classification and code-level categories (Off-by-One M05, Wrong Algorithm M06, ...) need AST analysis and the future AI-assisted layer (taxonomy §50).
+- Run-mode attempts are never classified — exploratory practice is out of scope for V1 detection.
+- Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
+- Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; both weight families need evaluation against simple baselines (docs/Evaluation_Framework.md).
 - Retention is stored as a nullable placeholder on skill state; no decay model computes it yet.
-- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics arrive with mistake detection.
+- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics arrive with the behavior model.
 - Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
 - `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
 - Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
@@ -75,4 +78,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Deterministic-first mistake detection (Phase 2.2): classify failures already persisted in the event stream and execution records (compile vs runtime vs wrong-answer patterns, repeated identical mistakes) so evidence strengths stop being outcome-only and start reflecting *why* a submit failed. That feeds richer mastery updates, then the behavior model (2.5) and the first personalized dashboard view of skill states (2.6).
+Phase 2.5 behavior model over the now-rich evidence: derive behavioral signals (hint dependency once hints exist, random-edit tendency and persistence from artifact diffs + execution cadence) alongside a first personalized dashboard surface (Phase 2.6) that shows skill states, open mistakes, and recurrence patterns instead of raw activity counts. AST-based detection of code-level categories (Off-by-One, Wrong Algorithm) follows to deepen mistake evidence.

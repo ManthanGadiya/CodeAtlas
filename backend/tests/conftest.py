@@ -11,6 +11,7 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.execution.runner import RunOutcome, get_runner
 from app.main import app
+from app.mistakes.service import seed_categories
 
 
 class FakeRunner:
@@ -65,13 +66,21 @@ def _reset_limiters():
 
 @pytest.fixture()
 def db_engine():
-    """Fresh in-memory SQLite database shared by all connections (StaticPool)."""
+    """Fresh in-memory SQLite database shared by all connections (StaticPool).
+
+    create_all bypasses Alembic, so reference data that migrations normally
+    seed (mistake taxonomy) is provisioned here to match a migrated
+    production database.
+    """
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
+    seed_session = sessionmaker(bind=engine)
+    with seed_session() as db:
+        seed_categories(db)
     yield engine
     engine.dispose()
 

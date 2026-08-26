@@ -20,11 +20,11 @@ but designed specifically for programming.
 
 > **🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is underway: every submit now flows through a rule-based mastery engine into per-skill student states — first-try solves move mastery most, retries and ambiguous failures move it less, and an append-only snapshot trail keeps every value explainable.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is well underway: every submit flows through a rule-based mastery engine into per-skill student states, and failed submissions are now deterministically classified into a mistake taxonomy (syntax, runtime, complexity, edge-case, logic) with recurrence tracking — so the system is starting to answer *why* something failed, not just *that* it failed.
 
 ### Current Milestone
 
-**Now: mistake detection (Phase 2.2)** — classifying *why* submissions fail so evidence strengths reflect causes rather than just outcomes, then the behavior model and the first personalized dashboard view of skill states.
+**Now: behavior model + personalized dashboard (Phases 2.5–2.6)** — deriving behavioral signals from artifact diffs and execution cadence, then surfacing skill states, open mistakes, and recurrence patterns on the dashboard instead of raw activity counts.
 
 ```text
 Problem

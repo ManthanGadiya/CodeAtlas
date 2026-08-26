@@ -9,6 +9,7 @@ from app.core.ratelimit import execution_limiter
 from app.execution import schemas
 from app.execution import service as execution_service
 from app.execution.runner import DockerPythonRunner, RunnerUnavailableError, get_runner
+from app.mistakes import service as mistake_service
 from app.problems import service as problem_service
 from app.skills import evidence as skill_evidence
 
@@ -61,7 +62,7 @@ def _execute(
     artifact = execution_service.record_artifact(
         db, student_id=student.id, problem=problem, code=payload.code
     )
-    execution_service.persist_execution(
+    execution_row = execution_service.persist_execution(
         db,
         student_id=student.id,
         problem=problem,
@@ -86,6 +87,16 @@ def _execute(
         status=outcome.status,
         passed=sum(1 for result in outcome.results if result.get("passed")),
         total=len(outcome.results),
+    )
+    mistake_service.observe_execution(
+        db,
+        student_id=student.id,
+        problem=problem,
+        mode=mode,
+        outcome=outcome,
+        executed_cases=executed_cases,
+        execution_id=execution_row.id,
+        code_artifact_id=execution_row.code_artifact_id,
     )
 
     response = execution_service.build_response(
