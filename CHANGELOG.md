@@ -11,6 +11,11 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Student skill model foundation (ROADMAP Phase 2.4 begins):
+  - `student_skill_states` and `mastery_snapshots` tables (Alembic `0007`): one revisable mastery belief per (student, skill) pair — mastery, confidence, retention placeholder, evidence count — plus an append-only audit trail so any value can be explained by replaying its change history.
+  - Rule-based mastery update engine (`app/skills/service.py`, model version `mastery-rule-v1`) implementing Learning_Model Stage 1: each evidence observation moves mastery an exponential-moving-average step toward what it implies, scaled by evidence strength in [0, 1]; confidence rises separately as consistent signal accumulates and never gates further learning; estimates clamp to [0.02, 0.98] so no belief becomes unrevisable; every update writes a reason-bearing snapshot (docs/Learning_Model.md rules 3, 6, 12).
+  - Tests covering directionality, strength scaling, convergence into the top mastery band under sustained strong evidence, single-event non-domination, floor/ceiling clamping, snapshot chaining, one-row-per-pair semantics, and rejection of malformed strength/reason input.
+
 - Frontend skeleton — Next.js app completing Phase 1.2's UI and closing out ROADMAP Level 1:
   - Account bootstrap/login flow driven by `/api/auth/status` (single-user registration appears only while no account exists).
   - Dashboard consuming the analytics summary: totals, submit success rate, completed-problem count, per-problem progress table, recent activity feed, and a first-run empty state.
