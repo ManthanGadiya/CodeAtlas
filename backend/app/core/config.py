@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # PostgreSQL is the documented system database (docs/Data_Model.md §67).
     # The URL stays configurable so a locally installed PostgreSQL works too;
     # Docker must not be a hard requirement in development.
-    database_url: str = "postgresql+psycopg://codeatlas:codeatlas@localhost:5432/codeatlas"
+    database_url: str = "postgresql+psycopg://codeatlas:codeatlas@localhost:5433/codeatlas"
 
     # AI provider keys stay optional until the AI gateway milestone.
     # Core functionality must work without external AI (docs/PRD.md NFR-002).

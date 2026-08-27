@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.auth.dependencies import CurrentUser, DbSession
+from app.behavior import service as behavior_service
 from app.core.ratelimit import execution_limiter
 from app.execution import schemas
 from app.execution import service as execution_service
@@ -97,6 +98,14 @@ def _execute(
         executed_cases=executed_cases,
         execution_id=execution_row.id,
         code_artifact_id=execution_row.code_artifact_id,
+    )
+    behavior_service.observe_execution(
+        db,
+        student_id=student.id,
+        problem=problem,
+        mode=mode,
+        outcome=outcome,
+        execution_id=execution_row.id,
     )
 
     response = execution_service.build_response(

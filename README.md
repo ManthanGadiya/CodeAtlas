@@ -20,11 +20,11 @@ but designed specifically for programming.
 
 > **🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is well underway: every submit flows through a rule-based mastery engine into per-skill student states, and failed submissions are now deterministically classified into a mistake taxonomy (syntax, runtime, complexity, edge-case, logic) with recurrence tracking — so the system is starting to answer *why* something failed, not just *that* it failed.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is well underway: every submit flows through a rule-based mastery engine into per-skill student states, failed submissions are deterministically classified into a mistake taxonomy with recurrence tracking, and a new behavior layer now observes how the student works (repeated retries, revision bursts, test discipline, productive persistence). All of this is exposed via `GET /api/analytics/learner` for the personalized dashboard to consume.
 
 ### Current Milestone
 
-**Now: behavior model + personalized dashboard (Phases 2.5–2.6)** — deriving behavioral signals from artifact diffs and execution cadence, then surfacing skill states, open mistakes, and recurrence patterns on the dashboard instead of raw activity counts.
+**Now: personalized dashboard frontend (Phase 2.6 UI)** — a Next.js page consuming `GET /api/analytics/learner` to show skill states, open mistakes, and behavior patterns. Level 2 backend is feature-complete for today (no Phase 3).
 
 ```text
 Problem

@@ -11,6 +11,11 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Behavior signals + learner summary API (Phases 2.5 & 2.6 backend):
+  - New `behavior` domain: `behavior_observations` threshold crossings and `behavior_patterns` aggregates (Alembic `0009`). Four deterministic signals from already-persisted artifacts/executions: `REPEATED_RETRY` (≥3 failed submits since last full pass), `RANDOM_EDITING` (≥4 distinct revisions while unresolved, proxy), `LOW_TESTING` (≥3 submits with zero Runs), and `PRODUCTIVE_PERSISTENCE` (full pass after ≥2 failures). Each emits a `BEHAVIOR_OBSERVED` event and upserts a per-student pattern (Phases 2.5 & 2.6).
+  - `GET /api/analytics/learner` — the learner model's first read surface: skill states (weakest-first, with `reliability` = unknown when confidence < 0.5), open mistakes, mistake patterns, and behavior patterns for the personalized dashboard to consume.
+  - Tests: threshold, severity escalation, streak-reset, run-mode isolation, and learner-endpoint shape (auth + empty + populated).
+
 - Deterministic mistake detection (ROADMAP Phase 2.2, deterministic layer of docs/Mistake_Taxonomy.md §50):
   - New mistakes domain: `mistake_categories` reference table seeded with the documented M01–M24 codes (Alembic `0008`, deterministic ids shared with runtime), a `mistakes` table linking each detection to its execution/artifact with severity, confidence, an evidence note, and a resolution lifecycle, plus `mistake_patterns` recurrence counters keyed by (student, category, skill) so one failure type aggregating across different problems becomes visible.
   - Failed submits are classified from signals the runner already produced — no LLM in this path: `COMPILE_ERROR` → M01 Syntax Error (0.95), `RUNTIME_ERROR` → M03 Runtime Error (0.85), `TIMEOUT`/`MEMORY_LIMIT` → M07 Complexity Mistake (0.65), all-visible-pass-but-hidden-fail → M10 Edge Case Failure (0.7), other wrong answers → M04 Logic Error (0.5). `SYSTEM_ERROR` is never attributed to the student.

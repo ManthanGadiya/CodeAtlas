@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: codeatlas
       POSTGRES_DB: codeatlas
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - codeatlas-pgdata:/var/lib/postgresql/data
     healthcheck:
