@@ -3,8 +3,8 @@
 > **Last Updated:** 2026-08-27  
 > **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) In Progress  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 (backend) implemented  
-> **Primary Objective:** Frontend consumption of the learner API and Phase 2 hardening (no Phase 3 today).
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented  
+> **Primary Objective:** Phase 2 hardening and evaluation (no Phase 3 today).
 
 ---
 
@@ -37,6 +37,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M8 | Submission evidence wiring into mastery states (Phase 2.4 completes) | 🟢 Complete |
 | M9 | Deterministic mistake detection: taxonomy, classification, recurrence (Phase 2.2, deterministic layer) | 🟢 Complete |
 | M10 | Behavior signals + learner summary API (Phases 2.5 & 2.6 backend) | 🟢 Complete |
+| M11 | Personalized dashboard frontend consuming learner API (Phase 2.6 UI) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -80,4 +81,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Level 2 backend is feature-complete for now (no Phase 3 today). Next is the frontend slice of 2.6 — a personalized dashboard page consuming `GET /api/analytics/learner` to show skill states, open mistakes, and behavior patterns — plus hardening and evaluation of the new signals.
+Level 2 is now end-to-end: backend signals, learner API, and dashboard UI are all live. Next is hardening and evaluation — exercise the new flows, tune thresholds against simple baselines, and polish the personalized experience. No Phase 3 today.

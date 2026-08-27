@@ -24,7 +24,7 @@ Engineering foundation, authentication, problem catalog, Docker-isolated Python 
 
 ### Current Milestone
 
-**Now: personalized dashboard frontend (Phase 2.6 UI)** — a Next.js page consuming `GET /api/analytics/learner` to show skill states, open mistakes, and behavior patterns. Level 2 backend is feature-complete for today (no Phase 3).
+**Now: Level 2 hardening and evaluation** — the personalized dashboard is live at `/` (skill states, open mistakes, recurring patterns, and behavior). Next is exercising the new flows and tuning thresholds against simple baselines. No Phase 3 today.
 
 ```text
 Problem

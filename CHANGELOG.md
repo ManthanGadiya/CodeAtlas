@@ -11,6 +11,8 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Personalized dashboard frontend (Phase 2.6 UI): `frontend/app/page.tsx` now fetches `GET /api/analytics/learner` alongside the activity summary and renders a `Your learning model` section — skill states weakest-first with mastery bars and `unknown`/`estimated` reliability badges, open mistakes with severity, recurring mistake patterns, and behavior patterns (how you work). Empty states stay honest and the section degrades gracefully when the learner endpoint is unavailable.
+
 - Behavior signals + learner summary API (Phases 2.5 & 2.6 backend):
   - New `behavior` domain: `behavior_observations` threshold crossings and `behavior_patterns` aggregates (Alembic `0009`). Four deterministic signals from already-persisted artifacts/executions: `REPEATED_RETRY` (≥3 failed submits since last full pass), `RANDOM_EDITING` (≥4 distinct revisions while unresolved, proxy), `LOW_TESTING` (≥3 submits with zero Runs), and `PRODUCTIVE_PERSISTENCE` (full pass after ≥2 failures). Each emits a `BEHAVIOR_OBSERVED` event and upserts a per-student pattern (Phases 2.5 & 2.6).
   - `GET /api/analytics/learner` — the learner model's first read surface: skill states (weakest-first, with `reliability` = unknown when confidence < 0.5), open mistakes, mistake patterns, and behavior patterns for the personalized dashboard to consume.
