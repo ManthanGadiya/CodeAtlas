@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-08-26  
+> **Last Updated:** 2026-08-27  
 > **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) In Progress  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2 (deterministic layer), 2.4 implemented  
-> **Primary Objective:** Behavior model (Phase 2.5) and the first personalized dashboard view of skill states and mistakes (Phase 2.6).
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 (backend) implemented  
+> **Primary Objective:** Frontend consumption of the learner API and Phase 2 hardening (no Phase 3 today).
 
 ---
 
@@ -36,6 +36,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M7 | Student skill-state tables + rule-based mastery engine (Phase 2.4 begins) | 🟢 Complete |
 | M8 | Submission evidence wiring into mastery states (Phase 2.4 completes) | 🟢 Complete |
 | M9 | Deterministic mistake detection: taxonomy, classification, recurrence (Phase 2.2, deterministic layer) | 🟢 Complete |
+| M10 | Behavior signals + learner summary API (Phases 2.5 & 2.6 backend) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -54,7 +55,6 @@ The system can answer: *What did the student do? When? What code did they write?
 - Phase 1.2 partially complete: authentication and the problem catalog work; the editor UI and dashboard are not started.
 - Sandbox trust model (V1, personal tool): harness and student code share one container process, so the single student could forge their own results; acceptable while CodeAtlas is single-user self-improvement, must be revisited for any multi-user/graded scenario.
 - Hidden-test policy decision: hidden cases and their expected outputs never leave the server; a failed submit reports only an anonymous pass/fail per hidden case plus the learner's own error text. This protects generalisation evidence from being hardcoded away.
-- Rate limiting (login and execution limiters) is in-process only; their per-IP event maps grow unboundedly and key on direct client IP — behind a reverse proxy everyone shares one bucket.
 - Per-execution memory usage is not yet measured (`memory_bytes` stays NULL); container-level accounting needs `docker stats` or runtime metrics.
 - Rate limiting (login and execution limiters) is in-process only; their per-IP event maps grow unboundedly and key on direct client IP — behind a reverse proxy everyone shares one bucket.
 - Sessions are static 7-day cookies; refresh-token rotation (security doc §7) is deferred.
@@ -66,7 +66,9 @@ The system can answer: *What did the student do? When? What code did they write?
 - Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
 - Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; both weight families need evaluation against simple baselines (docs/Evaluation_Framework.md).
 - Retention is stored as a nullable placeholder on skill state; no decay model computes it yet.
-- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics arrive with the behavior model.
+- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics are still future work.
+- Behavior signals are conservative threshold crossings (e.g., random-editing proxied by revision count while unresolved — healthy iterative refinement needs diff-content analysis); severity/confidence are initial assumptions.
+- `behavior_observations`/`behavior_patterns` are derived, not ground truth — trend stays `UNKNOWN` in V1.
 - Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
 - `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
 - Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
@@ -78,4 +80,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Phase 2.5 behavior model over the now-rich evidence: derive behavioral signals (hint dependency once hints exist, random-edit tendency and persistence from artifact diffs + execution cadence) alongside a first personalized dashboard surface (Phase 2.6) that shows skill states, open mistakes, and recurrence patterns instead of raw activity counts. AST-based detection of code-level categories (Off-by-One, Wrong Algorithm) follows to deepen mistake evidence.
+Level 2 backend is feature-complete for now (no Phase 3 today). Next is the frontend slice of 2.6 — a personalized dashboard page consuming `GET /api/analytics/learner` to show skill states, open mistakes, and behavior patterns — plus hardening and evaluation of the new signals.
