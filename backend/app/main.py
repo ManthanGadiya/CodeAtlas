@@ -1,6 +1,7 @@
 """CodeAtlas FastAPI application factory."""
 
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,11 +21,38 @@ def create_app() -> FastAPI:
     settings = get_settings()
     logging.basicConfig(level=settings.log_level.upper())
 
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # Catalog is reference data — it must exist before any student
+        # browses problems. The seed is idempotent and also refreshes
+        # problem metadata so content fixes propagate on restart.
+        try:
+            from app.db.session import SessionLocal
+            from app.problems.seed import seed_problems
+
+            db = SessionLocal()
+            try:
+                created = seed_problems(db)
+                if created:
+                    logging.info("Catalog auto-seeded: %s problem(s) created", created)
+                else:
+                    logging.info("Catalog already seeded")
+            finally:
+                db.close()
+        except OperationalError:
+            logging.warning(
+                "Database unavailable at startup — catalog will be seeded when DB is reachable"
+            )
+        except Exception as exc:  # noqa: BLE001
+            logging.warning("Catalog auto-seed failed: %s", exc)
+        yield
+
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
+        lifespan=lifespan,
     )
 
     # Credentialed browser access from the Next.js frontend.
