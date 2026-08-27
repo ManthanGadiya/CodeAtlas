@@ -111,6 +111,44 @@ export interface AnalyticsSummary {
   }>;
 }
 
+export interface LearnerSummary {
+  skills: Array<{
+    skill_slug: string;
+    skill_name: string;
+    mastery: number;
+    confidence: number;
+    reliability: "unknown" | "estimated";
+    evidence_count: number;
+    retention: number | null;
+    last_practiced_at: string | null;
+  }>;
+  open_mistakes: Array<{
+    category_code: string;
+    category_name: string;
+    problem_slug: string;
+    severity: string;
+    confidence: number;
+    evidence_note: string | null;
+    detected_at: string;
+  }>;
+  mistake_patterns: Array<{
+    category_code: string;
+    category_name: string;
+    skill_slug: string;
+    occurrence_count: number;
+    confidence: number;
+    last_seen_at: string;
+  }>;
+  behavior_patterns: Array<{
+    behavior_type: string;
+    frequency: number;
+    severity: string;
+    trend: string;
+    confidence: number;
+    last_observed_at: string;
+  }>;
+}
+
 export const api = {
   accountStatus: () =>
     apiFetch<{ has_account: boolean }>("/auth/status"),
@@ -148,6 +186,8 @@ export const api = {
     }),
 
   analyticsSummary: () => apiFetch<AnalyticsSummary>("/analytics/summary"),
+
+  learnerSummary: () => apiFetch<LearnerSummary>("/analytics/learner"),
 
   recordEvent: (eventType: string, payload: Record<string, unknown>) =>
     apiFetch<{ id: string }>("/events", {
