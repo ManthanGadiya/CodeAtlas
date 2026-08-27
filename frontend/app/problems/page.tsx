@@ -89,9 +89,8 @@ export default function ProblemsPage() {
           ))}
           {problems.length === 0 && (
             <li className="px-5 py-8 text-center text-sm text-neutral-500">
-              No problems seeded yet. Run{" "}
-              <code className="rounded bg-neutral-100 px-1">python -m scripts.seed_problems</code>{" "}
-              in backend/.
+              No problems yet — start the backend and the catalog seeds
+              automatically.
             </li>
           )}
         </ul>
