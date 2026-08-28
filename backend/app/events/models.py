@@ -33,6 +33,11 @@ class LearningEvent(Base):
     student_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("students.id", ondelete="CASCADE")
     )
+    # Nullable until Session exists (pre-0010 rows) and for future
+    # system events that are not session-scoped.
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     # Controlled vocabulary in app/events/service.py EVENT_TYPES; extended
     # only deliberately, never casually (AGENTS.md §32).
     event_type: Mapped[str] = mapped_column(String(48))

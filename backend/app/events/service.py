@@ -46,6 +46,7 @@ def record_event(
     db: Session,
     *,
     student_id: UUID,
+    session_id: UUID | None = None,
     event_type: str,
     payload: dict | None = None,
     schema_version: int = 1,
@@ -57,6 +58,7 @@ def record_event(
 
     event = LearningEvent(
         student_id=student_id,
+        session_id=session_id,
         event_type=event_type,
         schema_version=schema_version,
         payload=payload or {},

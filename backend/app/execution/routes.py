@@ -12,6 +12,7 @@ from app.execution import service as execution_service
 from app.execution.runner import DockerPythonRunner, RunnerUnavailableError, get_runner
 from app.mistakes import service as mistake_service
 from app.problems import service as problem_service
+from app.sessions import service as session_service
 from app.skills import evidence as skill_evidence
 
 router = APIRouter(prefix="/problems", tags=["execution"])
@@ -40,6 +41,9 @@ def _execute(
     if problem is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Problem not found")
 
+    session = session_service.get_or_create_open_session(db, student_id=student.id)
+    session_id = session.id
+
     executed_cases = execution_service.select_test_cases(problem, mode)
     try:
         outcome = runner.run(
@@ -61,7 +65,7 @@ def _execute(
         ) from exc
 
     artifact = execution_service.record_artifact(
-        db, student_id=student.id, problem=problem, code=payload.code
+        db, student_id=student.id, problem=problem, code=payload.code, session_id=session_id
     )
     execution_row = execution_service.persist_execution(
         db,
@@ -71,10 +75,12 @@ def _execute(
         outcome=outcome,
         executed_cases=executed_cases,
         artifact=artifact,
+        session_id=session_id,
     )
     execution_service.emit_execution_events(
         db,
         student_id=student.id,
+        session_id=session_id,
         problem=problem,
         mode=mode,
         outcome=outcome,
@@ -92,6 +98,7 @@ def _execute(
     mistake_service.observe_execution(
         db,
         student_id=student.id,
+        session_id=session_id,
         problem=problem,
         mode=mode,
         outcome=outcome,
@@ -102,6 +109,7 @@ def _execute(
     behavior_service.observe_execution(
         db,
         student_id=student.id,
+        session_id=session_id,
         problem=problem,
         mode=mode,
         outcome=outcome,

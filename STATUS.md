@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-08-27  
-> **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) In Progress  
+> **Last Updated:** 2026-08-28  
+> **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) Hardening  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented  
-> **Primary Objective:** Phase 2 hardening and evaluation (no Phase 3 today).
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Session entity (Data_Model §9)  
+> **Primary Objective:** Finish Level 2 gaps (session scoping → skill hierarchy → retention) then Level 3.
 
 ---
 
@@ -38,6 +38,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M9 | Deterministic mistake detection: taxonomy, classification, recurrence (Phase 2.2, deterministic layer) | 🟢 Complete |
 | M10 | Behavior signals + learner summary API (Phases 2.5 & 2.6 backend) | 🟢 Complete |
 | M11 | Personalized dashboard frontend consuming learner API (Phase 2.6 UI) | 🟢 Complete |
+| M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟡 In Progress |
 
 ## 3. Status Legend
 
@@ -71,7 +72,6 @@ The system can answer: *What did the student do? When? What code did they write?
 - Behavior signals are conservative threshold crossings (e.g., random-editing proxied by revision count while unresolved — healthy iterative refinement needs diff-content analysis); severity/confidence are initial assumptions.
 - `behavior_observations`/`behavior_patterns` are derived, not ground truth — trend stays `UNKNOWN` in V1.
 - Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
-- `session_id` documented on events/artifacts is deferred until a Session entity exists; schema_version supports the migration.
 - Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
 - Frontend not scaffolded yet (Next.js decision frozen; next milestone).
 - Unit tests run on SQLite; PostgreSQL behavior is exercised by the CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
@@ -81,4 +81,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Level 2 is now end-to-end: backend signals, learner API, and dashboard UI are all live. Next is hardening and evaluation — exercise the new flows, tune thresholds against simple baselines, and polish the personalized experience. No Phase 3 today.
+M12 (Session entity) branch `feature/session-entity` in progress: migration 0010 adds `sessions` + nullable `session_id` to events/artifacts/executions/behavior_observations. Execution and event ingestion auto-create/reuse open sessions (30-min TTL). Next: wire `GET /api/sessions/*` into frontend and finish hardening gaps (skill hierarchy → retention) before Level 3.

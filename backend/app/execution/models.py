@@ -33,10 +33,13 @@ class CodeArtifact(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     student_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("students.id", ondelete="CASCADE")
+        Uuid, ForeignKey("students.id", ondelete="CASCADE"), index=True
     )
     problem_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("problems.id", ondelete="CASCADE")
+        Uuid, ForeignKey("problems.id", ondelete="CASCADE"), index=True
+    )
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="SET NULL"), nullable=True, index=True
     )
     language: Mapped[str] = mapped_column(String(32), default="python", server_default="python")
     source_code: Mapped[str] = mapped_column(Text)
@@ -65,6 +68,9 @@ class Execution(Base):
     )
     problem_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("problems.id", ondelete="CASCADE"), index=True
+    )
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="SET NULL"), nullable=True, index=True
     )
     code_artifact_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("code_artifacts.id", ondelete="SET NULL"), index=True

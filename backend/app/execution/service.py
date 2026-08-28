@@ -12,7 +12,9 @@ from app.execution.runner import RESULTS_SENTINEL, RunOutcome
 from app.problems.models import Problem, TestCase
 
 
-def record_artifact(db: Session, *, student_id, problem: Problem, code: str) -> CodeArtifact:
+def record_artifact(
+    db: Session, *, student_id, problem: Problem, code: str, session_id=None
+) -> CodeArtifact:
     """Store this submission as the newest version in the problem's chain.
 
     Consecutive identical submissions are deduplicated by content hash;
@@ -48,6 +50,7 @@ def record_artifact(db: Session, *, student_id, problem: Problem, code: str) -> 
     artifact = CodeArtifact(
         student_id=student_id,
         problem_id=problem.id,
+        session_id=session_id,
         source_code=code,
         content_hash=content_hash,
         parent_artifact_id=latest.id if latest is not None else None,
@@ -62,6 +65,7 @@ def emit_execution_events(
     db: Session,
     *,
     student_id,
+    session_id=None,
     problem: Problem,
     mode: str,
     outcome: RunOutcome,
@@ -80,6 +84,7 @@ def emit_execution_events(
     record_event(
         db,
         student_id=student_id,
+        session_id=session_id,
         event_type="CODE_RUN",
         payload={
             "problem_slug": problem.slug,
@@ -94,6 +99,7 @@ def emit_execution_events(
         record_event(
             db,
             student_id=student_id,
+            session_id=session_id,
             event_type="COMPILATION_FAILED",
             payload={"problem_slug": problem.slug, "mode": mode},
         )
@@ -101,6 +107,7 @@ def emit_execution_events(
         record_event(
             db,
             student_id=student_id,
+            session_id=session_id,
             event_type="RUNTIME_FAILED",
             payload={"problem_slug": problem.slug, "mode": mode},
         )
@@ -113,6 +120,7 @@ def emit_execution_events(
         record_event(
             db,
             student_id=student_id,
+            session_id=session_id,
             event_type=("TEST_PASSED" if case_result.get("passed") else "TEST_FAILED"),
             payload={
                 "problem_slug": problem.slug,
@@ -126,6 +134,7 @@ def emit_execution_events(
         record_event(
             db,
             student_id=student_id,
+            session_id=session_id,
             event_type="PROBLEM_COMPLETED",
             payload={"problem_slug": problem.slug},
         )
@@ -148,10 +157,12 @@ def persist_execution(
     outcome: RunOutcome,
     executed_cases: list[TestCase],
     artifact: CodeArtifact | None = None,
+    session_id=None,
 ) -> Execution:
     execution = Execution(
         student_id=student_id,
         problem_id=problem.id,
+        session_id=session_id,
         code_artifact_id=artifact.id if artifact is not None else None,
         mode=mode,
         status=outcome.status,

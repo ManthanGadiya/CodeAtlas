@@ -23,8 +23,9 @@ class BehaviorObservation(Base):
     student_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("students.id", ondelete="CASCADE"), index=True
     )
-    # Context is problem-level until a Session entity exists (same deferral
-    # as events/artifacts, docs/STATUS known limitations).
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     problem_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("problems.id", ondelete="CASCADE"), index=True
     )
