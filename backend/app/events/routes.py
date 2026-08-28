@@ -10,6 +10,7 @@ from app.events.service import (
     UnknownSchemaVersion,
     record_event,
 )
+from app.sessions.service import get_or_create_open_session
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -40,10 +41,12 @@ def ingest_event(payload: EventIn, db: DbSession, student: CurrentUser) -> Event
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unknown or server-reserved event type.",
         )
+    session = get_or_create_open_session(db, student_id=student.id)
     try:
         event = record_event(
             db,
             student_id=student.id,
+            session_id=session.id,
             event_type=payload.event_type,
             payload=payload.payload,
             schema_version=payload.schema_version,

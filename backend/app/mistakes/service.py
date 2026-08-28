@@ -93,6 +93,7 @@ def observe_execution(
     db: Session,
     *,
     student_id: UUID,
+    session_id: UUID | None = None,
     problem: Problem,
     mode: str,
     outcome: RunOutcome,
@@ -132,6 +133,7 @@ def observe_execution(
         return _record_mistake(
             db,
             student_id=student_id,
+            session_id=session_id,
             problem=problem,
             classified=classified,
             execution_id=execution_id,
@@ -152,6 +154,7 @@ def _record_mistake(
     db: Session,
     *,
     student_id: UUID,
+    session_id: UUID | None,
     problem: Problem,
     classified: ClassifiedMistake,
     execution_id: UUID | None,
@@ -176,6 +179,7 @@ def _record_mistake(
     record_event(
         db,
         student_id=student_id,
+        session_id=session_id,
         event_type="MISTAKE_DETECTED",
         payload={
             "mistake_id": str(mistake.id),

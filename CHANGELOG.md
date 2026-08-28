@@ -11,6 +11,8 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 ### Added
 
+- Session entity and session scoping (Data_Model §9, M12): new `sessions` table (`id`, `student_id`, `session_type` practice/debugging/diagnostic/revision/retrieval/free_coding, `device_context`, `started_at`, `ended_at`) and nullable `session_id` on `learning_events`, `code_artifacts`, `executions`, `behavior_observations` (Alembic `0010`). Execution (`_execute`) and event ingestion lazily get-or-create an open session (30-min TTL reuse, stale → close + new) so every new evidence row is session-scoped while pre-0010 history stays `NULL`. New endpoints `GET /api/sessions/current`, `GET /api/sessions`, `POST /api/sessions`, `PATCH /api/sessions/{id}/end`; `MISTAKE_DETECTED`/`BEHAVIOR_OBSERVED` events also carry the current `session_id`.
+
 - Personalized dashboard frontend (Phase 2.6 UI): `frontend/app/page.tsx` now fetches `GET /api/analytics/learner` alongside the activity summary and renders a `Your learning model` section — skill states weakest-first with mastery bars and `unknown`/`estimated` reliability badges, open mistakes with severity, recurring mistake patterns, and behavior patterns (how you work). Empty states stay honest and the section degrades gracefully when the learner endpoint is unavailable.
 
 - Behavior signals + learner summary API (Phases 2.5 & 2.6 backend):

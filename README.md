@@ -24,7 +24,7 @@ Engineering foundation, authentication, problem catalog, Docker-isolated Python 
 
 ### Current Milestone
 
-**Now: Level 2 hardening and evaluation** — the personalized dashboard is live at `/` (skill states, open mistakes, recurring patterns, and behavior). Next is exercising the new flows and tuning thresholds against simple baselines. No Phase 3 today.
+**Now: `feature/session-entity` (M12, Data_Model §9)** — nullable `session_id` on events/artifacts/executions/behaviors; lazy open-session (30-min reuse) on every execution/event. Next gaps: skill hierarchy → retention before Level 3.
 
 ```text
 Problem

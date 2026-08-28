@@ -116,6 +116,7 @@ def observe_execution(
     db: Session,
     *,
     student_id: UUID,
+    session_id: UUID | None = None,
     problem,  # Problem
     mode: str,
     outcome,  # RunOutcome
@@ -187,6 +188,7 @@ def observe_execution(
     for behavior_type, severity, detail in firings:
         observation = BehaviorObservation(
             student_id=student_id,
+            session_id=session_id,
             problem_id=problem.id,
             behavior_type=behavior_type,
             severity=severity,
@@ -199,6 +201,7 @@ def observe_execution(
         record_event(
             db,
             student_id=student_id,
+            session_id=session_id,
             event_type="BEHAVIOR_OBSERVED",
             payload={
                 "behavior_type": behavior_type,
