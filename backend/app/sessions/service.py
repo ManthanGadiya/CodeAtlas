@@ -38,7 +38,10 @@ def get_or_create_open_session(
         session_type = "practice"
     open_session = get_open_session(db, student_id=student_id)
     if open_session is not None:
-        age = _now_utc() - open_session.started_at
+        started = open_session.started_at
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=UTC)
+        age = _now_utc() - started
         if age < timedelta(minutes=SESSION_TTL_MINUTES):
             return open_session
         # Stale open session: close it and fall through to create.
