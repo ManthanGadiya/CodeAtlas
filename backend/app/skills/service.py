@@ -111,6 +111,7 @@ def apply_evidence(
         skill_id=skill_id,
         previous_mastery=previous_mastery,
         new_mastery=new_mastery,
+        confidence=new_confidence,
         reason=reason,
         model_version=MODEL_VERSION,
     )

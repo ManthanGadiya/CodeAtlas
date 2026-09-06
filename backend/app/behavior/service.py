@@ -186,12 +186,14 @@ def observe_execution(
     observations: list[BehaviorObservation] = []
     now = datetime.now(UTC)
     for behavior_type, severity, detail in firings:
+        confidence = {"LOW": 0.5, "MEDIUM": 0.65, "HIGH": 0.85}.get(severity, 0.6)
         observation = BehaviorObservation(
             student_id=student_id,
             session_id=session_id,
             problem_id=problem.id,
             behavior_type=behavior_type,
             severity=severity,
+            confidence=confidence,
             detail=detail,
             model_version=MODEL_VERSION,
         )

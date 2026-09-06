@@ -3,8 +3,8 @@
 > **Last Updated:** 2026-08-28  
 > **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) Hardening  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Session entity (M12)  
-> **Primary Objective:** Close skill hierarchy (M13) → remaining Level 2 gaps → Level 3.
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Sessions (M12) + Skill hierarchy (M13)  
+> **Primary Objective:** Close aggregate student state (M14) → Level 2 done.
 
 ---
 
@@ -39,7 +39,8 @@ The system can answer: *What did the student do? When? What code did they write?
 | M10 | Behavior signals + learner summary API (Phases 2.5 & 2.6 backend) | 🟢 Complete |
 | M11 | Personalized dashboard frontend consuming learner API (Phase 2.6 UI) | 🟢 Complete |
 | M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟢 Complete |
-| M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟡 In Progress |
+| M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟢 Complete |
+| M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟡 In Progress |
 
 ## 3. Status Legend
 
@@ -82,4 +83,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-M13 branch `feature/skill-hierarchy` in progress: Alembic 0011 adds `skills.description/domain`, `problem_skills.importance`, and `skill_relationships` graph; seed now creates 13 skills (8 top + 5 subskills under Binary Search / DP) with 11 prerequisite/composes edges. Next gaps after M13: aggregate student state + retention before Level 3.
+M14 branch `feature/student-aggregate-state` in progress: Alembic 0012 adds `student_preferences` and `student_learning_states` (Data_Model §7-8) plus `mastery_snapshots.confidence` and `behavior_observations.confidence`. Closes the last High/Medium Data_Model gaps before Level 2 is declared complete.

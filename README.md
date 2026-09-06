@@ -24,7 +24,7 @@ Engineering foundation, authentication, problem catalog, Docker-isolated Python 
 
 ### Current Milestone
 
-**Now: `feature/skill-hierarchy` (M13, Data_Model §25-28)** — 13 skills with subskills (Binary Search / DP), 11 prerequisite edges, `description/domain/importance` now stored. Next: aggregate student state + retention to close Level 2.
+**Now: `feature/student-aggregate-state` (M14, Data_Model §7/§8/§31/§38)** — per-student preferences + aggregate learning state and confidence on snapshots/observations. Level 2 closing.
 
 ```text
 Problem
