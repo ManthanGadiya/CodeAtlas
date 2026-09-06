@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-08-28  
-> **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) Hardening  
+> **Last Updated:** 2026-09-06  
+> **Project Status:** 🟢 Levels 1 & 2 Complete — Level 3 Ready  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Sessions (M12) + Skill hierarchy (M13)  
-> **Primary Objective:** Close aggregate student state (M14) → Level 2 done.
+> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; hardening gaps closed (M12 Sessions, M13 Hierarchy, M14 Aggregate State)  
+> **Primary Objective:** Level 3 — Adaptive Intelligence (retention → curriculum → tutor) or frontend hardening — ask before expanding scope.
 
 ---
 
@@ -40,7 +40,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M11 | Personalized dashboard frontend consuming learner API (Phase 2.6 UI) | 🟢 Complete |
 | M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟢 Complete |
 | M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟢 Complete |
-| M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟡 In Progress |
+| M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -83,4 +83,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-M14 branch `feature/student-aggregate-state` in progress: Alembic 0012 adds `student_preferences` and `student_learning_states` (Data_Model §7-8) plus `mastery_snapshots.confidence` and `behavior_observations.confidence`. Closes the last High/Medium Data_Model gaps before Level 2 is declared complete.
+Level 2 is complete (M12-M14 closed, 0010-0012 applied, 13 skills + 11 edges, session-scoped evidence, aggregate state + confidence). Do not start major Level 3 work without user confirmation (AGENTS.md §4 — ask before product scope). Next candidate slices: retention engine, AI gateway, or frontend Monaco + state management — all require explicit trade-off choice.
