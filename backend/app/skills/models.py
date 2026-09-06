@@ -67,6 +67,7 @@ class MasterySnapshot(Base):
     )
     previous_mastery: Mapped[float | None] = mapped_column(Float)  # NULL = first evidence
     new_mastery: Mapped[float] = mapped_column(Float)
+    confidence: Mapped[float | None] = mapped_column(Float)  # mastery certainty at snapshot time
     reason: Mapped[str] = mapped_column(String(120))
     model_version: Mapped[str] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(

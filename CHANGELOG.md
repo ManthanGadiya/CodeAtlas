@@ -15,6 +15,8 @@ and CodeAtlas follows Semantic Versioning where applicable.
 
 - Skill hierarchy completeness (Data_Model §25-28, M13): Alembic `0011` adds `skills.description`/`domain`, `problem_skills.importance` (Float, default 1.0), and `skill_relationships` graph (`source_skill_id` → `target_skill_id`, `PREREQUISITE`/`RELATED`/`COMPOSES`, `strength`). Seed now 13 skills (8 top + `search-space-reduction`, `binary-search-invariants` under Binary Search; `dp-state-definition`, `dp-transition`, `dp-memoization` under DP; `boundary-handling` reparented) with 11 edges, enabling subskill-level diagnosis (Learning_Model §14-15).
 
+- Aggregate student state and remaining Level 2 columns (Data_Model §7/§8/§31/§38, M14): Alembic `0012` creates `student_preferences` (language/difficulty/explanation/hint/style, session length, notifications) and `student_learning_states` (overall mastery/velocity/independence/retention scores) plus `mastery_snapshots.confidence` and `behavior_observations.confidence` (severity -> 0.5/0.65/0.85). Snapshots and observations now store the confidence that was previously only in the live state rows, closing the last High/Medium Data_Model gaps before Level 2 is declared complete.
+
 - Personalized dashboard frontend (Phase 2.6 UI): `frontend/app/page.tsx` now fetches `GET /api/analytics/learner` alongside the activity summary and renders a `Your learning model` section — skill states weakest-first with mastery bars and `unknown`/`estimated` reliability badges, open mistakes with severity, recurring mistake patterns, and behavior patterns (how you work). Empty states stay honest and the section degrades gracefully when the learner endpoint is unavailable.
 
 - Behavior signals + learner summary API (Phases 2.5 & 2.6 backend):

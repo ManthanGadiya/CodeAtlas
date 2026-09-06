@@ -31,6 +31,7 @@ class BehaviorObservation(Base):
     )
     behavior_type: Mapped[str] = mapped_column(String(32))
     severity: Mapped[str] = mapped_column(String(16))
+    confidence: Mapped[float] = mapped_column(Float, default=0.5, server_default="0.5")
     detail: Mapped[dict] = mapped_column(JSON, default=dict)
     model_version: Mapped[str] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(
