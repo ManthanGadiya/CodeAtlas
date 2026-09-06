@@ -24,7 +24,7 @@ Engineering foundation, authentication, problem catalog, Docker-isolated Python 
 
 ### Current Milestone
 
-**Now: `feature/student-aggregate-state` (M14, Data_Model §7/§8/§31/§38)** — per-student preferences + aggregate learning state and confidence on snapshots/observations. Level 2 closing.
+**Now: Levels 1 & 2 complete (`main` at `a3ea605`)** — 0010 Sessions, 0011 Hierarchy (13 skills + 11 edges), 0012 Aggregate State. Next requires user choice: retention engine, AI gateway, or frontend Monaco.
 
 ```text
 Problem
