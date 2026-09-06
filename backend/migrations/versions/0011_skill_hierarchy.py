@@ -38,23 +38,13 @@ def upgrade() -> None:
         sa.Column("target_skill_id", sa.Uuid(), nullable=False),
         sa.Column("relationship_type", sa.String(length=32), nullable=False),
         sa.Column("strength", sa.Float(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["source_skill_id"], ["skills.id"], ondelete="CASCADE"
-        ),
-        sa.ForeignKeyConstraint(
-            ["target_skill_id"], ["skills.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["source_skill_id"], ["skills.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["target_skill_id"], ["skills.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("source_skill_id", "target_skill_id"),
-        sa.UniqueConstraint(
-            "source_skill_id", "target_skill_id", name="uq_skill_relationship"
-        ),
+        sa.UniqueConstraint("source_skill_id", "target_skill_id", name="uq_skill_relationship"),
     )
-    op.create_index(
-        "ix_skill_relationships_source", "skill_relationships", ["source_skill_id"]
-    )
-    op.create_index(
-        "ix_skill_relationships_target", "skill_relationships", ["target_skill_id"]
-    )
+    op.create_index("ix_skill_relationships_source", "skill_relationships", ["source_skill_id"])
+    op.create_index("ix_skill_relationships_target", "skill_relationships", ["target_skill_id"])
 
 
 def downgrade() -> None:
