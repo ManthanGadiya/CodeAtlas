@@ -1,7 +1,7 @@
 """Analytics summary queries — observations only, honestly labelled."""
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.execution.models import Execution
 from app.problems.models import Problem
@@ -11,6 +11,7 @@ def build_summary(db: Session, student_id) -> dict:
     executions = db.scalars(
         select(Execution)
         .where(Execution.student_id == student_id)
+        .options(selectinload(Execution.test_executions))
         .order_by(Execution.created_at.desc())
     ).all()
 
