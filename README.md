@@ -24,7 +24,7 @@ Engineering foundation, authentication, problem catalog, Docker-isolated Python 
 
 ### Current Milestone
 
-**Now: `feature/session-entity` (M12, Data_Model §9)** — nullable `session_id` on events/artifacts/executions/behaviors; lazy open-session (30-min reuse) on every execution/event. Next gaps: skill hierarchy → retention before Level 3.
+**Now: `feature/skill-hierarchy` (M13, Data_Model §25-28)** — 13 skills with subskills (Binary Search / DP), 11 prerequisite edges, `description/domain/importance` now stored. Next: aggregate student state + retention to close Level 2.
 
 ```text
 Problem

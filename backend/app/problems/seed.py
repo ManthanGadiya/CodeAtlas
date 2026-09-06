@@ -8,15 +8,61 @@ propagate when the seed is re-run. Skill links are additive.
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.problems.models import Problem, ProblemSkill, Skill, TestCase
-from app.problems.seed_data import PROBLEMS, SKILLS
+from app.problems.models import Problem, ProblemSkill, Skill, SkillRelationship, TestCase
+from app.problems.seed_data import PROBLEMS, SKILL_RELATIONSHIPS, SKILLS
 
 
 def seed_skills(db: Session) -> None:
+    # First pass: ensure every slug exists with base fields.
     for spec in SKILLS:
         skill = db.scalar(select(Skill).where(Skill.slug == spec["slug"]))
         if skill is None:
-            db.add(Skill(slug=spec["slug"], name=spec["name"]))
+            skill = Skill(slug=spec["slug"], name=spec["name"])
+            db.add(skill)
+            db.flush()
+        # Keep metadata in sync on re-seed.
+        skill.name = spec["name"]
+        if "description" in spec:
+            skill.description = spec["description"]
+        if "domain" in spec:
+            skill.domain = spec["domain"]
+    db.commit()
+
+    # Second pass: wire parent links (requires all slugs to exist).
+    for spec in SKILLS:
+        parent_slug = spec.get("parent_slug")
+        if not parent_slug:
+            continue
+        skill = db.scalar(select(Skill).where(Skill.slug == spec["slug"]))
+        parent = db.scalar(select(Skill).where(Skill.slug == parent_slug))
+        if skill and parent and skill.parent_skill_id != parent.id:
+            skill.parent_skill_id = parent.id
+    db.commit()
+
+    # Seed prerequisite/relationship graph (additive, idempotent).
+    for source_slug, target_slug, rel_type, strength in SKILL_RELATIONSHIPS:
+        source = db.scalar(select(Skill).where(Skill.slug == source_slug))
+        target = db.scalar(select(Skill).where(Skill.slug == target_slug))
+        if not source or not target:
+            continue
+        existing = db.scalar(
+            select(SkillRelationship).where(
+                SkillRelationship.source_skill_id == source.id,
+                SkillRelationship.target_skill_id == target.id,
+            )
+        )
+        if existing is None:
+            db.add(
+                SkillRelationship(
+                    source_skill_id=source.id,
+                    target_skill_id=target.id,
+                    relationship_type=rel_type,
+                    strength=strength,
+                )
+            )
+        elif existing.relationship_type != rel_type or existing.strength != strength:
+            existing.relationship_type = rel_type
+            existing.strength = strength
     db.commit()
 
 
