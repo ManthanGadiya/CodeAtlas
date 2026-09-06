@@ -12,6 +12,7 @@ from datetime import datetime
 from sqlalchemy import (
     JSON,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -31,6 +32,8 @@ class Skill(Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     slug: Mapped[str] = mapped_column(String(80), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(120))
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    domain: Mapped[str | None] = mapped_column(String(64), nullable=True)
     parent_skill_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("skills.id", ondelete="SET NULL")
     )
@@ -72,6 +75,28 @@ class Problem(Base):
     )
 
 
+class SkillRelationship(Base):
+    """Prerequisite/related edges between skills (docs/Data_Model.md §27)."""
+
+    __tablename__ = "skill_relationships"
+    __table_args__ = (
+        UniqueConstraint("source_skill_id", "target_skill_id", name="uq_skill_relationship"),
+    )
+
+    source_skill_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("skills.id", ondelete="CASCADE"), primary_key=True
+    )
+    target_skill_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("skills.id", ondelete="CASCADE"), primary_key=True
+    )
+    # PREREQUISITE | RELATED | COMPOSES | GENERALIZES | SPECIALIZES
+    relationship_type: Mapped[str] = mapped_column(String(32))
+    strength: Mapped[float | None] = mapped_column(Float)
+
+    source: Mapped["Skill"] = relationship(foreign_keys=[source_skill_id])
+    target: Mapped["Skill"] = relationship(foreign_keys=[target_skill_id])
+
+
 class ProblemSkill(Base):
     __tablename__ = "problem_skills"
 
@@ -84,6 +109,7 @@ class ProblemSkill(Base):
     )
     # primary | supporting (docs/Data_Model.md §28)
     role: Mapped[str] = mapped_column(String(16), default="primary", server_default="primary")
+    importance: Mapped[float] = mapped_column(Float, default=1.0, server_default="1.0")
 
     problem: Mapped["Problem"] = relationship(back_populates="skill_links")
     skill: Mapped["Skill"] = relationship()

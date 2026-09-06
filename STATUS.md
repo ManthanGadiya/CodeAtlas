@@ -3,8 +3,8 @@
 > **Last Updated:** 2026-08-28  
 > **Project Status:** 🟢 Level 1 Complete — Level 2 (Personalization) Hardening  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Session entity (Data_Model §9)  
-> **Primary Objective:** Finish Level 2 gaps (session scoping → skill hierarchy → retention) then Level 3.
+> **Development Stage:** ROADMAP Phases 1.1–1.6, 2.2, 2.4, 2.5 and 2.6 implemented + Session entity (M12)  
+> **Primary Objective:** Close skill hierarchy (M13) → remaining Level 2 gaps → Level 3.
 
 ---
 
@@ -38,7 +38,8 @@ The system can answer: *What did the student do? When? What code did they write?
 | M9 | Deterministic mistake detection: taxonomy, classification, recurrence (Phase 2.2, deterministic layer) | 🟢 Complete |
 | M10 | Behavior signals + learner summary API (Phases 2.5 & 2.6 backend) | 🟢 Complete |
 | M11 | Personalized dashboard frontend consuming learner API (Phase 2.6 UI) | 🟢 Complete |
-| M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟡 In Progress |
+| M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟢 Complete |
+| M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟡 In Progress |
 
 ## 3. Status Legend
 
@@ -81,4 +82,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-M12 (Session entity) branch `feature/session-entity` in progress: migration 0010 adds `sessions` + nullable `session_id` to events/artifacts/executions/behavior_observations. Execution and event ingestion auto-create/reuse open sessions (30-min TTL). Next: wire `GET /api/sessions/*` into frontend and finish hardening gaps (skill hierarchy → retention) before Level 3.
+M13 branch `feature/skill-hierarchy` in progress: Alembic 0011 adds `skills.description/domain`, `problem_skills.importance`, and `skill_relationships` graph; seed now creates 13 skills (8 top + 5 subskills under Binary Search / DP) with 11 prerequisite/composes edges. Next gaps after M13: aggregate student state + retention before Level 3.

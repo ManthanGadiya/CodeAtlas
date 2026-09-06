@@ -6,14 +6,106 @@ edge cases deliberately designed to surface boundary/off-by-one behaviour
 """
 
 SKILLS = [
-    {"slug": "arrays", "name": "Arrays"},
-    {"slug": "hash-maps", "name": "Hash Maps"},
-    {"slug": "two-pointers", "name": "Two Pointers"},
-    {"slug": "binary-search", "name": "Binary Search"},
-    {"slug": "boundary-handling", "name": "Boundary Handling"},
-    {"slug": "stacks", "name": "Stacks"},
-    {"slug": "strings", "name": "Strings"},
-    {"slug": "dynamic-programming", "name": "Dynamic Programming"},
+    {
+        "slug": "arrays",
+        "name": "Arrays",
+        "description": "Contiguous collections and index manipulation",
+        "domain": "data-structures",
+    },
+    {
+        "slug": "hash-maps",
+        "name": "Hash Maps",
+        "description": "Key-value association and constant-time lookup",
+        "domain": "data-structures",
+    },
+    {
+        "slug": "two-pointers",
+        "name": "Two Pointers",
+        "description": "Coordinated scan from ends or at different speeds",
+        "domain": "algorithms",
+    },
+    {
+        "slug": "binary-search",
+        "name": "Binary Search",
+        "description": "Logarithmic search by repeated halving of a sorted space",
+        "domain": "algorithms",
+    },
+    {
+        "slug": "boundary-handling",
+        "name": "Boundary Handling",
+        "description": "Correct handling of edges, limits, and off-by-one cases",
+        "domain": "algorithms",
+        "parent_slug": "binary-search",
+    },
+    {
+        "slug": "search-space-reduction",
+        "name": "Search Space Reduction",
+        "description": "Narrowing the candidate interval while preserving the target",
+        "domain": "algorithms",
+        "parent_slug": "binary-search",
+    },
+    {
+        "slug": "binary-search-invariants",
+        "name": "Binary Search Invariants",
+        "description": "Loop invariants that keep the search sound",
+        "domain": "algorithms",
+        "parent_slug": "binary-search",
+    },
+    {
+        "slug": "stacks",
+        "name": "Stacks",
+        "description": "LIFO collections and bracket matching",
+        "domain": "data-structures",
+    },
+    {
+        "slug": "strings",
+        "name": "Strings",
+        "description": "Character sequences, parsing, and palindromes",
+        "domain": "data-structures",
+    },
+    {
+        "slug": "dynamic-programming",
+        "name": "Dynamic Programming",
+        "description": "Optimal substructure and overlapping subproblems",
+        "domain": "algorithms",
+    },
+    {
+        "slug": "dp-state-definition",
+        "name": "DP State Definition",
+        "description": "Choosing what a DP cell represents",
+        "domain": "algorithms",
+        "parent_slug": "dynamic-programming",
+    },
+    {
+        "slug": "dp-transition",
+        "name": "DP Transition",
+        "description": "Recurrence that builds larger answers from smaller ones",
+        "domain": "algorithms",
+        "parent_slug": "dynamic-programming",
+    },
+    {
+        "slug": "dp-memoization",
+        "name": "DP Memoization",
+        "description": "Caching subproblem results to avoid recomputation",
+        "domain": "algorithms",
+        "parent_slug": "dynamic-programming",
+    },
+]
+
+# Prerequisite/relationship edges (Data_Model.md §27).
+# source -> target, type, strength (0-1, higher = stronger prerequisite)
+SKILL_RELATIONSHIPS = [
+    ("arrays", "binary-search", "PREREQUISITE", 0.8),
+    ("binary-search", "boundary-handling", "COMPOSES", 0.9),
+    ("binary-search", "search-space-reduction", "COMPOSES", 0.9),
+    ("binary-search", "binary-search-invariants", "COMPOSES", 0.85),
+    ("arrays", "two-pointers", "PREREQUISITE", 0.6),
+    ("strings", "two-pointers", "RELATED", 0.4),
+    ("arrays", "dynamic-programming", "PREREQUISITE", 0.5),
+    ("dynamic-programming", "dp-state-definition", "COMPOSES", 0.9),
+    ("dynamic-programming", "dp-transition", "COMPOSES", 0.9),
+    ("dynamic-programming", "dp-memoization", "COMPOSES", 0.85),
+    ("stacks", "strings", "RELATED", 0.3),
 ]
 
 TWO_SUM = {
