@@ -1,26 +1,35 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-09-06  
-> **Project Status:** 🟢 Levels 1 & 2 Complete — Level 3 Ready  
+> **Last Updated:** 2026-09-10  
+> **Project Status:** 🟢 Levels 1, 2 & 3.1 Complete — Level 3 Adaptive Intelligence Underway  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; hardening gaps closed (M12 Sessions, M13 Hierarchy, M14 Aggregate State)  
-> **Primary Objective:** Level 3 — Adaptive Intelligence (retention → curriculum → tutor) or frontend hardening — ask before expanding scope.
+> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; Level 3 Phase 3.1 Tutoring Engine landed (0013 tutor_interactions, AI gateway, hint ladder 0-7)  
+> **Primary Objective:** Level 3 — Retention Engine (3.6) → Adaptive Curriculum (3.4) → Problem Generator (3.2).
 
 ---
 
 # 1. Current State
 
-ROADMAP Level 1 is complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), and watch an honest dashboard of what was observed — while every execution, code version, and learning event accumulates as evidence for the intelligence layers to come.
+ROADMAP Levels 1, 2 and 3.1 are complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), watch an honest dashboard of what was observed, **and ask the tutor for socratic hints that adapt to their mistake, skill mastery, and behavior** — while every execution, code version, learning event, mistake, behavior signal, and tutor interaction accumulates as evidence for the retention/curriculum layers to come.
 
-- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics modules)
-- Next.js frontend: login/bootstrap, dashboard, problem browser, problem detail with editor
+- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway**)
+- Next.js frontend: login/bootstrap, dashboard (personalized learner model), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7, contextual actions)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics summary
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor interaction audit trail (0013) + HINT_REQUESTED/HINT_SHOWN events**
+- Deterministic tutoring loop: Observe (mistake/skill/behavior) → Diagnose → Minimal hint → Escalate → AI gateway fallback to templates offline
 - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
 
 The system can answer: *What did the student do? When? What code did they write? What happened when they ran it? How did their code evolve?*
+
+## Level 2 Exit Criteria — met
+
+The system can answer: *What does this student know? Where are they weak? What mistakes repeat? How do they behave while solving?* (learner summary weakest-first, mistake recurrence, behavior patterns, subskill hierarchy).
+
+## Level 3.1 Exit Criteria — met
+
+The system can answer: *What help does this student need right now, and how much is enough?* — deterministic intervention selection, Socratic hint ladder, and an auditable tutor history.
 
 ## 2. Milestone Tracker
 
@@ -41,6 +50,7 @@ The system can answer: *What did the student do? When? What code did they write?
 | M12 | Session entity and session_id scoping for events/artifacts/executions/behaviors (Data_Model §9) | 🟢 Complete |
 | M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟢 Complete |
 | M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟢 Complete |
+| M15 | Tutoring engine (Phase 3.1) — AI gateway + deterministic hint ladder 0-7 + TutorInteraction audit + HINT_REQUESTED/SHOWN events + TutorPanel (Data_Model §43, Tutoring_Engine.md) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -83,4 +93,4 @@ The system can answer: *What did the student do? When? What code did they write?
 
 ## 5. Next Step
 
-Level 2 is complete (M12-M14 closed, 0010-0012 applied, 13 skills + 11 edges, session-scoped evidence, aggregate state + confidence). Do not start major Level 3 work without user confirmation (AGENTS.md §4 — ask before product scope). Next candidate slices: retention engine, AI gateway, or frontend Monaco + state management — all require explicit trade-off choice.
+Level 3.1 is complete (0013 applied, 10 tutor tests passing, frontend build green). Next slices per ROADMAP Level 3: **Phase 3.6 Forgetting & Retention** (stability/decay model replacing NULL retention) → **Phase 3.4 Adaptive Curriculum** (weakness/retrieval/transfer scoring) → **Phase 3.2 Problem Generator**. Ask before expanding to RL/research-grade per AGENTS.md §4.

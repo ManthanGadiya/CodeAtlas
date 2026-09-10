@@ -16,6 +16,7 @@ from app.events.routes import router as events_router
 from app.execution.routes import router as execution_router
 from app.problems.routes import router as problems_router
 from app.sessions.routes import router as sessions_router
+from app.tutor.routes import router as tutor_router
 
 
 def create_app() -> FastAPI:
@@ -85,6 +86,7 @@ def create_app() -> FastAPI:
     app.include_router(events_router, prefix="/api")
     app.include_router(analytics_router, prefix="/api")
     app.include_router(sessions_router, prefix="/api")
+    app.include_router(tutor_router, prefix="/api")
     return app
 
 

@@ -15,4 +15,5 @@ import app.mistakes.models  # noqa: F401
 import app.problems.models  # noqa: F401
 import app.sessions.models  # noqa: F401
 import app.skills.models  # noqa: F401
+import app.tutor.models  # noqa: F401
 import app.users.models  # noqa: F401

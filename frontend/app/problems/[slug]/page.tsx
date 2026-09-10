@@ -6,6 +6,7 @@ import { ApiError, api, type ExecutionResult, type ProblemDetail } from "@/lib/a
 import { useRequireAuth } from "@/hooks/useAuth";
 import { ExecutionPanel } from "@/components/ExecutionPanel";
 import { Skeleton } from "@/components/Skeleton";
+import { TutorPanel } from "@/components/TutorPanel";
 
 export default function ProblemPage() {
   const params = useParams<{ slug: string }>();
@@ -188,6 +189,8 @@ export default function ProblemPage() {
         </div>
 
         {result && <ExecutionPanel result={result} />}
+
+        <TutorPanel slug={slug} code={code} />
       </section>
     </div>
   );

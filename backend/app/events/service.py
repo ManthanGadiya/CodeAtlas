@@ -28,6 +28,10 @@ SERVER_EVENT_TYPES = {
     # Phase 2.5: behavior signals (docs/Data_Model.md §39). Payload carries
     # behavior_type/severity/problem_slug plus rule-specific counters.
     "BEHAVIOR_OBSERVED",
+    # Phase 3.1: tutoring engine (docs/Tutoring_Engine.md §18, §66).
+    # HINT_REQUESTED = student asked, HINT_SHOWN = hint actually delivered.
+    "HINT_REQUESTED",
+    "HINT_SHOWN",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

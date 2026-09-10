@@ -194,4 +194,39 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ event_type: eventType, payload }),
     }),
+
+  tutorHint: (slug: string, code: string | null, hintLevel: number | null) =>
+    apiFetch<{
+      interaction_id: string;
+      problem_slug: string;
+      hint_level: number;
+      intervention: string;
+      content: string;
+      provider: string;
+      is_fallback: boolean;
+    }>("/tutor/hint", {
+      method: "POST",
+      body: JSON.stringify({
+        problem_slug: slug,
+        code: code ?? null,
+        hint_level: hintLevel,
+      }),
+    }),
+
+  tutorHistory: (problemSlug?: string, limit = 10) => {
+    const qs = new URLSearchParams();
+    if (problemSlug) qs.set("problem_slug", problemSlug);
+    qs.set("limit", String(limit));
+    return apiFetch<
+      Array<{
+        id: string;
+        problem_slug: string | null;
+        hint_level: number;
+        intervention: string;
+        provider: string;
+        response: string;
+        created_at: string;
+      }>
+    >(`/tutor/history?${qs.toString()}`);
+  },
 };
