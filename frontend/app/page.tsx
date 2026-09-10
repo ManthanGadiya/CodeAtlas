@@ -173,7 +173,15 @@ export default function DashboardPage() {
                     <span className="font-medium">{activity.problem_title}</span>
                     <span className="text-neutral-500">{activity.mode}</span>
                     <span className="ml-auto text-neutral-400">
-                      {activity.passed}/{activity.total}
+                      {activity.total === 0 ? (
+                        <span className="uppercase tracking-wide">
+                          {activity.status.toLowerCase().replace(/_/g, " ")}
+                        </span>
+                      ) : (
+                        <span>
+                          {activity.passed}/{activity.total}
+                        </span>
+                      )}
                       {activity.runtime_ms !== null && ` · ${activity.runtime_ms} ms`}
                     </span>
                   </li>
