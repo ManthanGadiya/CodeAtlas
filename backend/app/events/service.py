@@ -34,6 +34,8 @@ SERVER_EVENT_TYPES = {
     "HINT_SHOWN",
     # Phase 3.6: retention & forgetting (docs/Forgeting_And_Retention.md §52-53).
     "RETRIEVAL_ATTEMPTED",
+    # Phase 3.4: adaptive curriculum (docs/Adaptive_Curriculum.md §53-54).
+    "CURRICULUM_DECISION",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

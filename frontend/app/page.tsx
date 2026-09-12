@@ -44,6 +44,14 @@ export default function DashboardPage() {
       due: boolean;
     }>
   >([]);
+  const [nextUp, setNextUp] = useState<{
+    problem_slug: string;
+    problem_title: string;
+    difficulty: string;
+    decision_type: string;
+    reason: string;
+    confidence: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,6 +81,14 @@ export default function DashboardPage() {
       .catch(() => {
         // retention is additive — keep dashboard honest without it
       });
+    api
+      .curriculumNext()
+      .then((data) => {
+        if (!cancelled) setNextUp(data);
+      })
+      .catch(() => {
+        // curriculum is additive
+      });
     return () => {
       cancelled = true;
     };
@@ -95,6 +111,18 @@ export default function DashboardPage() {
       <p className="mt-1 text-sm text-neutral-500">
         Observations of your practice — honest numbers, no pretend intelligence.
       </p>
+
+      {nextUp && (
+        <div className="mt-6 rounded-lg border border-sky-200 bg-sky-50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">Recommended next</p>
+          <Link href={`/problems/${nextUp.problem_slug}`} className="mt-1 block text-base font-semibold hover:underline">
+            {nextUp.problem_title} · <span className="text-sm font-normal capitalize">{nextUp.difficulty}</span>
+          </Link>
+          <p className="mt-1 text-sm text-neutral-700">
+            {nextUp.decision_type} · {nextUp.reason} · confidence {nextUp.confidence.toFixed(2)}
+          </p>
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="mt-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">

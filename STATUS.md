@@ -1,23 +1,24 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-09-10  
-> **Project Status:** 🟢 Levels 1, 2, 3.1 & 3.6 Complete — Level 3 Adaptive Intelligence Underway  
+> **Project Status:** 🟢 Levels 1, 2, 3.1, 3.6 & 3.4 Complete — Level 3 Adaptive Intelligence Underway  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; Level 3 Phase 3.1 Tutoring Engine (0013) and Phase 3.6 Retention Engine (0014 retention_states, R(t)=exp(-t/S) + stability scheduling) landed  
-> **Primary Objective:** Level 3 — Adaptive Curriculum (3.4) → Problem Generator (3.2) → Transfer/Difficulty.
+> **Development Stage:** ROADMAP Levels 1-2 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015 curriculum_decisions) landed  
+> **Primary Objective:** Level 3 — Problem Generator (3.2) → Adaptive Difficulty (3.3) → Transfer/Retrieval.
 
 ---
 
 # 1. Current State
 
-ROADMAP Levels 1, 2, 3.1 and 3.6 are complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), watch an honest dashboard of what was observed, **ask the tutor for socratic hints that adapt to their mistake, skill mastery, and behavior, and see which skills are fading and when to review them** — while every execution, code version, learning event, mistake, behavior signal, tutor interaction, and retrieval attempt accumulates as evidence for the curriculum layer to come.
+ROADMAP Levels 1, 2, 3.1, 3.6 and 3.4 are complete. A student can register, browse seeded Python problems, write code, get **a personalized next-problem recommendation explaining why** (weakest skill, retention due, mistake recurrence, prerequisite pivot), ask the tutor for socratic hints, and see which skills are fading — while every execution, code version, learning event, mistake, behavior, tutor interaction, and retrieval attempt feeds the adaptive curriculum.
 
-- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention**)
-- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due list**), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7, contextual actions)**
+- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum**)
+- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next card**), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor interaction audit (0013) + retention states (0014) + HINT_REQUESTED/SHOWN + RETRIEVAL_ATTEMPTED events**
-- Deterministic tutoring loop: Observe (mistake/skill/behavior) → Diagnose → Minimal hint → Escalate → AI gateway fallback to templates offline
-- Retention engine: R(t)=exp(-t/S) with adaptive stability (SUCCESS ×2, FAIL ×0.5, caps 0.5–60d), next review = now + S×0.8, live decay on read, due = probability <0.6 or next review overdue
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + HINT/RETRIEVAL/CURRICULUM_DECISION events**
+- Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
+- Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
+- **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
 - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
@@ -35,6 +36,10 @@ The system can answer: *What help does this student need right now, and how much
 ## Level 3.6 Exit Criteria — met
 
 The system can answer: *What has the student learned but may be forgetting, when should they review it, and did retrieval succeed?* — exponential decay per skill, stability scheduling, and an overdue/due signal for the curriculum.
+
+## Level 3.4 Exit Criteria — met
+
+The system can answer: *What should this student practice next, why, and what alternatives were considered?* — scored curriculum candidates, prerequisite-aware repair, retention-weighted retrieval, and auditable decisions.
 
 ## 2. Milestone Tracker
 
@@ -57,6 +62,7 @@ The system can answer: *What has the student learned but may be forgetting, when
 | M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟢 Complete |
 | M15 | Tutoring engine (Phase 3.1) — AI gateway + deterministic hint ladder 0-7 + TutorInteraction audit + HINT_REQUESTED/SHOWN events + TutorPanel (Data_Model §43, Tutoring_Engine.md) | 🟢 Complete |
 | M16 | Retention & forgetting model (Phase 3.6) — R(t)=exp(-t/S), stability 0.5–60d, RETRIEVAL_ATTEMPTED events, GET /retention/overview + POST /retention/review, dashboard due list (Data_Model §49, Forgetting §25, §51-54) | 🟢 Complete |
+| M17 | Adaptive curriculum (Phase 3.4) — rule-based scorer (§55) + prerequisite pivot, GET /curriculum/next + /decisions, dashboard Recommended next card (Data_Model §53-54, Adaptive_Curriculum §17, §55) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -99,4 +105,4 @@ The system can answer: *What has the student learned but may be forgetting, when
 
 ## 5. Next Step
 
-Level 3.6 is complete (0014 applied, 13 retention tests passing, 10 tutor tests, frontend build green). Next slices per ROADMAP Level 3: **Phase 3.4 Adaptive Curriculum** (scoring candidates by skill gap + retention due + mistake recurrence) → **Phase 3.2 Problem Generator** (validated generation) → **Phase 3.3 Adaptive Difficulty**. Ask before expanding to RL/research-grade per AGENTS.md §4.
+Level 3.4 is complete (0015 applied, 7 curriculum tests passing, 13 retention + 10 tutor). Next slices per ROADMAP Level 3: **Phase 3.2 Problem Generator** (validated generation + test → solution verification) → **Phase 3.3 Adaptive Difficulty** (IRT/BKT difficulty estimation). Ask before RL/research-grade per AGENTS.md §4.

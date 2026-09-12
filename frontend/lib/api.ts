@@ -262,4 +262,34 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ skill_slug: skillSlug, success }),
     }),
+
+  curriculumNext: () =>
+    apiFetch<{
+      problem_slug: string;
+      problem_title: string;
+      difficulty: string;
+      decision_type: string;
+      target_skill_slug: string | null;
+      reason: string;
+      confidence: number;
+      alternatives: Array<{
+        problem_slug: string;
+        problem_title: string;
+        score: number;
+        decision_type: string;
+        reason: string;
+      }>;
+    }>("/curriculum/next"),
+
+  curriculumDecisions: () =>
+    apiFetch<
+      Array<{
+        id: string;
+        problem_slug: string;
+        decision_type: string;
+        reason: string;
+        confidence: number;
+        created_at: string;
+      }>
+    >("/curriculum/decisions"),
 };

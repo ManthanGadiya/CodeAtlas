@@ -12,6 +12,7 @@ from app.analytics.routes import router as analytics_router
 from app.api.routes import health
 from app.auth.routes import router as auth_router
 from app.core.config import get_settings
+from app.curriculum.routes import router as curriculum_router
 from app.events.routes import router as events_router
 from app.execution.routes import router as execution_router
 from app.problems.routes import router as problems_router
@@ -89,6 +90,7 @@ def create_app() -> FastAPI:
     app.include_router(sessions_router, prefix="/api")
     app.include_router(tutor_router, prefix="/api")
     app.include_router(retention_router, prefix="/api")
+    app.include_router(curriculum_router, prefix="/api")
     return app
 
 
