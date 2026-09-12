@@ -32,6 +32,8 @@ SERVER_EVENT_TYPES = {
     # HINT_REQUESTED = student asked, HINT_SHOWN = hint actually delivered.
     "HINT_REQUESTED",
     "HINT_SHOWN",
+    # Phase 3.6: retention & forgetting (docs/Forgeting_And_Retention.md §52-53).
+    "RETRIEVAL_ATTEMPTED",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

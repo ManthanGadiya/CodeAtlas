@@ -1,22 +1,23 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-09-10  
-> **Project Status:** 🟢 Levels 1, 2 & 3.1 Complete — Level 3 Adaptive Intelligence Underway  
+> **Project Status:** 🟢 Levels 1, 2, 3.1 & 3.6 Complete — Level 3 Adaptive Intelligence Underway  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; Level 3 Phase 3.1 Tutoring Engine landed (0013 tutor_interactions, AI gateway, hint ladder 0-7)  
-> **Primary Objective:** Level 3 — Retention Engine (3.6) → Adaptive Curriculum (3.4) → Problem Generator (3.2).
+> **Development Stage:** ROADMAP Levels 1 (1.1–1.6) and 2 (2.1–2.6) complete; Level 3 Phase 3.1 Tutoring Engine (0013) and Phase 3.6 Retention Engine (0014 retention_states, R(t)=exp(-t/S) + stability scheduling) landed  
+> **Primary Objective:** Level 3 — Adaptive Curriculum (3.4) → Problem Generator (3.2) → Transfer/Difficulty.
 
 ---
 
 # 1. Current State
 
-ROADMAP Levels 1, 2 and 3.1 are complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), watch an honest dashboard of what was observed, **and ask the tutor for socratic hints that adapt to their mistake, skill mastery, and behavior** — while every execution, code version, learning event, mistake, behavior signal, and tutor interaction accumulates as evidence for the retention/curriculum layers to come.
+ROADMAP Levels 1, 2, 3.1 and 3.6 are complete. A student can register, browse seeded Python problems, write code in the browser, execute it inside a Docker-isolated sandbox against visible examples (Run) or all tests including hidden ones (Submit), watch an honest dashboard of what was observed, **ask the tutor for socratic hints that adapt to their mistake, skill mastery, and behavior, and see which skills are fading and when to review them** — while every execution, code version, learning event, mistake, behavior signal, tutor interaction, and retrieval attempt accumulates as evidence for the curriculum layer to come.
 
-- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway**)
-- Next.js frontend: login/bootstrap, dashboard (personalized learner model), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7, contextual actions)**
+- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention**)
+- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due list**), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7, contextual actions)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor interaction audit trail (0013) + HINT_REQUESTED/HINT_SHOWN events**
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor interaction audit (0013) + retention states (0014) + HINT_REQUESTED/SHOWN + RETRIEVAL_ATTEMPTED events**
 - Deterministic tutoring loop: Observe (mistake/skill/behavior) → Diagnose → Minimal hint → Escalate → AI gateway fallback to templates offline
+- Retention engine: R(t)=exp(-t/S) with adaptive stability (SUCCESS ×2, FAIL ×0.5, caps 0.5–60d), next review = now + S×0.8, live decay on read, due = probability <0.6 or next review overdue
 - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
@@ -30,6 +31,10 @@ The system can answer: *What does this student know? Where are they weak? What m
 ## Level 3.1 Exit Criteria — met
 
 The system can answer: *What help does this student need right now, and how much is enough?* — deterministic intervention selection, Socratic hint ladder, and an auditable tutor history.
+
+## Level 3.6 Exit Criteria — met
+
+The system can answer: *What has the student learned but may be forgetting, when should they review it, and did retrieval succeed?* — exponential decay per skill, stability scheduling, and an overdue/due signal for the curriculum.
 
 ## 2. Milestone Tracker
 
@@ -51,6 +56,7 @@ The system can answer: *What help does this student need right now, and how much
 | M13 | Skill hierarchy completeness — description/domain, subskills, prerequisite graph, importance (Data_Model §25-28) | 🟢 Complete |
 | M14 | Aggregate student state + preferences + snapshot/observation confidence (Data_Model §7, §8, §31, §38) | 🟢 Complete |
 | M15 | Tutoring engine (Phase 3.1) — AI gateway + deterministic hint ladder 0-7 + TutorInteraction audit + HINT_REQUESTED/SHOWN events + TutorPanel (Data_Model §43, Tutoring_Engine.md) | 🟢 Complete |
+| M16 | Retention & forgetting model (Phase 3.6) — R(t)=exp(-t/S), stability 0.5–60d, RETRIEVAL_ATTEMPTED events, GET /retention/overview + POST /retention/review, dashboard due list (Data_Model §49, Forgetting §25, §51-54) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -79,7 +85,7 @@ The system can answer: *What help does this student need right now, and how much
 - Run-mode attempts are never classified — exploratory practice is out of scope for V1 detection.
 - Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
 - Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; both weight families need evaluation against simple baselines (docs/Evaluation_Framework.md).
-- Retention is stored as a nullable placeholder on skill state; no decay model computes it yet.
+- Retention was a nullable placeholder; now computed via R(t)=exp(-t/S) per skill (Phase 3.6) and mirrored to StudentSkillState.retention, but encoding-strength factors (§8-9) and personalized per-skill forgetting rates (§16) remain future work.
 - Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics are still future work.
 - Behavior signals are conservative threshold crossings (e.g., random-editing proxied by revision count while unresolved — healthy iterative refinement needs diff-content analysis); severity/confidence are initial assumptions.
 - `behavior_observations`/`behavior_patterns` are derived, not ground truth — trend stays `UNKNOWN` in V1.
@@ -93,4 +99,4 @@ The system can answer: *What help does this student need right now, and how much
 
 ## 5. Next Step
 
-Level 3.1 is complete (0013 applied, 10 tutor tests passing, frontend build green). Next slices per ROADMAP Level 3: **Phase 3.6 Forgetting & Retention** (stability/decay model replacing NULL retention) → **Phase 3.4 Adaptive Curriculum** (weakness/retrieval/transfer scoring) → **Phase 3.2 Problem Generator**. Ask before expanding to RL/research-grade per AGENTS.md §4.
+Level 3.6 is complete (0014 applied, 13 retention tests passing, 10 tutor tests, frontend build green). Next slices per ROADMAP Level 3: **Phase 3.4 Adaptive Curriculum** (scoring candidates by skill gap + retention due + mistake recurrence) → **Phase 3.2 Problem Generator** (validated generation) → **Phase 3.3 Adaptive Difficulty**. Ask before expanding to RL/research-grade per AGENTS.md §4.

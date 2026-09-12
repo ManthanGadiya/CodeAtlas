@@ -229,4 +229,37 @@ export const api = {
       }>
     >(`/tutor/history?${qs.toString()}`);
   },
+
+  retentionOverview: () =>
+    apiFetch<
+      Array<{
+        skill_id: string;
+        skill_slug: string;
+        skill_name: string;
+        mastery: number;
+        stability: number;
+        retrieval_probability: number;
+        last_successful_retrieval: string | null;
+        next_recommended_review: string | null;
+        retrieval_count: number;
+        due: boolean;
+      }>
+    >("/retention/overview"),
+
+  retentionReview: (skillSlug: string, success: boolean) =>
+    apiFetch<{
+      skill_id: string;
+      skill_slug: string;
+      skill_name: string;
+      mastery: number;
+      stability: number;
+      retrieval_probability: number;
+      last_successful_retrieval: string | null;
+      next_recommended_review: string | null;
+      retrieval_count: number;
+      due: boolean;
+    }>("/retention/review", {
+      method: "POST",
+      body: JSON.stringify({ skill_slug: skillSlug, success }),
+    }),
 };

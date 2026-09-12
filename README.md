@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟢 Levels 1, 2 & 3.1 (Tutor) Complete — Adaptive Intelligence Underway — v0.1.0-dev**
+> **🟢 Levels 1, 2, 3.1 & 3.6 Complete — Adaptive Intelligence Underway — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3.1 Tutoring Engine** has landed: every hint request flows through a deterministic intervention selector (mistake/skill/behavior-aware, ladder 0-7) via an AI Gateway that degrades to Socratic templates when Gemini/Groq keys are absent. All of this is exposed via `GET /api/analytics/learner` and `POST /api/tutor/hint` + `GET /api/tutor/history`.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed two engines: **3.1 Tutoring** (deterministic intervention selector, ladder 0-7 via AI Gateway degrading to Socratic templates) and **3.6 Retention** (R(t)=exp(-t/S) per skill, adaptive stability, due scheduling). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, and `GET /api/retention/overview`.
 
 ### Current Milestone
 
-**Now: Levels 1, 2 & 3.1 complete (`feature/tutoring-engine`, 0013 tutor_interactions)** — Socratic hints live on the problem workspace. Next: Phase 3.6 Retention engine → Phase 3.4 Adaptive Curriculum → Phase 3.2 Problem Generator.
+**Now: Levels 1, 2, 3.1 & 3.6 complete (`feature/retention-engine`, 0014 retention_states)** — Socratic hints + forgetting curves live. Next: Phase 3.4 Adaptive Curriculum → Phase 3.2 Problem Generator → Phase 3.3 Adaptive Difficulty.
 
 ```text
 Problem
