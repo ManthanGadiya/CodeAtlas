@@ -36,6 +36,8 @@ SERVER_EVENT_TYPES = {
     "RETRIEVAL_ATTEMPTED",
     # Phase 3.4: adaptive curriculum (docs/Adaptive_Curriculum.md §53-54).
     "CURRICULUM_DECISION",
+    # Phase 3.2: problem generation (docs/Problem_Generator.md §59-64).
+    "PROBLEM_GENERATED",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

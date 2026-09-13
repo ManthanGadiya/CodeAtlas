@@ -1,24 +1,25 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-09-10  
-> **Project Status:** 🟢 Levels 1, 2, 3.1, 3.6 & 3.4 Complete — Level 3 Adaptive Intelligence Underway  
+> **Last Updated:** 2026-09-13  
+> **Project Status:** 🟢 Levels 1, 2, 3.1, 3.6, 3.4 & 3.2 Complete — Level 3 Adaptive Intelligence Underway  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-2 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015 curriculum_decisions) landed  
-> **Primary Objective:** Level 3 — Problem Generator (3.2) → Adaptive Difficulty (3.3) → Transfer/Retrieval.
+> **Development Stage:** ROADMAP Levels 1-2 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015), 3.2 Problem Generator (0016 generator fields) landed  
+> **Primary Objective:** Level 3 — Adaptive Difficulty (3.3) → Transfer/Retrieval → Level 4 research.
 
 ---
 
 # 1. Current State
 
-ROADMAP Levels 1, 2, 3.1, 3.6 and 3.4 are complete. A student can register, browse seeded Python problems, write code, get **a personalized next-problem recommendation explaining why** (weakest skill, retention due, mistake recurrence, prerequisite pivot), ask the tutor for socratic hints, and see which skills are fading — while every execution, code version, learning event, mistake, behavior, tutor interaction, and retrieval attempt feeds the adaptive curriculum.
+ROADMAP Levels 1, 2, 3.1, 3.6, 3.4 and 3.2 are complete. A student can register, browse seeded Python problems, **generate validated variants of any problem** (boundary/constraints/transfer mutations), get **a personalized next-problem recommendation explaining why**, ask the tutor for socratic hints, and see which skills are fading — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval attempt, and generated problem feeds the adaptive loop.
 
-- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum**)
-- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next card**), problem browser, problem detail with editor + **TutorPanel (hint ladder 0-7)**
+- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator**)
+- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next card**), problem browser (includes generated variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + HINT/RETRIEVAL/CURRICULUM_DECISION events**
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED events**
 - Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
 - Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
 - **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
+- **Generator engine**: validated mutation pipeline (§59: syntax → tests → solution → difficulty → duplicate fingerprint → quality ≥0.5) with three deterministic transforms (boundary_variant, constraint_tighten, context_shift), auditable provenance
 - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
@@ -40,6 +41,10 @@ The system can answer: *What has the student learned but may be forgetting, when
 ## Level 3.4 Exit Criteria — met
 
 The system can answer: *What should this student practice next, why, and what alternatives were considered?* — scored curriculum candidates, prerequisite-aware repair, retention-weighted retrieval, and auditable decisions.
+
+## Level 3.2 Exit Criteria — met
+
+The system can answer: *Can we create a new, valid, non-duplicate problem that targets the intended skill and survives the full validation pipeline?* — fingerprint deduplication, syntax/test/solution checks, quality gate, and provenance tracking.
 
 ## 2. Milestone Tracker
 
@@ -63,6 +68,7 @@ The system can answer: *What should this student practice next, why, and what al
 | M15 | Tutoring engine (Phase 3.1) — AI gateway + deterministic hint ladder 0-7 + TutorInteraction audit + HINT_REQUESTED/SHOWN events + TutorPanel (Data_Model §43, Tutoring_Engine.md) | 🟢 Complete |
 | M16 | Retention & forgetting model (Phase 3.6) — R(t)=exp(-t/S), stability 0.5–60d, RETRIEVAL_ATTEMPTED events, GET /retention/overview + POST /retention/review, dashboard due list (Data_Model §49, Forgetting §25, §51-54) | 🟢 Complete |
 | M17 | Adaptive curriculum (Phase 3.4) — rule-based scorer (§55) + prerequisite pivot, GET /curriculum/next + /decisions, dashboard Recommended next card (Data_Model §53-54, Adaptive_Curriculum §17, §55) | 🟢 Complete |
+| M18 | Problem generator (Phase 3.2) — validated mutation pipeline (§59: syntax/test/solution/difficulty/duplicate/quality), 3 mutations (boundary/constraint/context), POST /generator/mutate + /generate + /validate-draft, fingerprint dedup + provenance (Data_Model §21-22, Problem_Generator §68-69, 0016) | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -92,6 +98,7 @@ The system can answer: *What should this student practice next, why, and what al
 - Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
 - Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; both weight families need evaluation against simple baselines (docs/Evaluation_Framework.md).
 - Retention was a nullable placeholder; now computed via R(t)=exp(-t/S) per skill (Phase 3.6) and mirrored to StudentSkillState.retention, but encoding-strength factors (§8-9) and personalized per-skill forgetting rates (§16) remain future work.
+- Problem generation is mutation-only (3 deterministic variants from curated seeds); LLM free-form generation and adaptive difficulty estimation (§14-18) remain future work — the pipeline is ready to plug a provider behind the validator.
 - Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics are still future work.
 - Behavior signals are conservative threshold crossings (e.g., random-editing proxied by revision count while unresolved — healthy iterative refinement needs diff-content analysis); severity/confidence are initial assumptions.
 - `behavior_observations`/`behavior_patterns` are derived, not ground truth — trend stays `UNKNOWN` in V1.
@@ -105,4 +112,4 @@ The system can answer: *What should this student practice next, why, and what al
 
 ## 5. Next Step
 
-Level 3.4 is complete (0015 applied, 7 curriculum tests passing, 13 retention + 10 tutor). Next slices per ROADMAP Level 3: **Phase 3.2 Problem Generator** (validated generation + test → solution verification) → **Phase 3.3 Adaptive Difficulty** (IRT/BKT difficulty estimation). Ask before RL/research-grade per AGENTS.md §4.
+Level 3.2 is complete (0016 applied, 13 generator tests passing, seed starter_code/fingerprint backfilled). Next slices per ROADMAP Level 3: **Phase 3.3 Adaptive Difficulty** (IRT/BKT difficulty estimation, Problem_Generator §14-18) → **Phase 3.5 Retrieval Practice + 3.7 Transfer** → Level 4. Ask before RL/research-grade per AGENTS.md §4.

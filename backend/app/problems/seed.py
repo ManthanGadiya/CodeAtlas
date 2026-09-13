@@ -90,6 +90,23 @@ def seed_problems(db: Session) -> int:
         problem.difficulty = spec["difficulty"]
         problem.function_name = spec["function_name"]
         problem.estimated_minutes = spec["estimated_minutes"]
+        problem.starter_code = spec.get("starter_code", "")
+        problem.language = spec.get("language", "python")
+        problem.source_type = "curated"
+        # Fingerprint / quality for deduplication (§68-69)
+        try:
+            from app.generator.service import estimate_quality, fingerprint_for
+
+            problem.fingerprint = fingerprint_for(
+                problem.title, problem.description, problem.function_name, problem.difficulty
+            )
+            # Build test dicts for quality estimation
+            tdicts = [
+                {"name": c["name"], "visibility": c["visibility"]} for c in spec["test_cases"]
+            ]
+            problem.quality_score = estimate_quality(problem.description, tdicts)
+        except Exception:
+            pass
 
         # Replace evaluation data wholesale so fixes always propagate.
         # Flush after clearing so DELETEs reach the database before the

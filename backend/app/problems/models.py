@@ -62,6 +62,13 @@ class Problem(Base):
     # function_name(*test_case.input_args) and compare against expected_output.
     function_name: Mapped[str] = mapped_column(String(120))
     estimated_minutes: Mapped[int | None] = mapped_column(Integer)
+    # Generator provenance (Phase 3.2, Data_Model §21-22, Problem_Generator §68-69)
+    fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    parent_problem_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("problems.id", ondelete="SET NULL"), nullable=True
+    )
+    generation_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    quality_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
