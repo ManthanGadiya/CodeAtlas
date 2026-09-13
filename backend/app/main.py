@@ -12,10 +12,17 @@ from app.analytics.routes import router as analytics_router
 from app.api.routes import health
 from app.auth.routes import router as auth_router
 from app.core.config import get_settings
+from app.curriculum.routes import router as curriculum_router
+from app.difficulty.routes import router as difficulty_router
 from app.events.routes import router as events_router
 from app.execution.routes import router as execution_router
+from app.generator.routes import router as generator_router
 from app.problems.routes import router as problems_router
+from app.retention.routes import router as retention_router
+from app.retrieval.routes import router as retrieval_router
 from app.sessions.routes import router as sessions_router
+from app.transfer.routes import router as transfer_router
+from app.tutor.routes import router as tutor_router
 
 
 def create_app() -> FastAPI:
@@ -85,6 +92,13 @@ def create_app() -> FastAPI:
     app.include_router(events_router, prefix="/api")
     app.include_router(analytics_router, prefix="/api")
     app.include_router(sessions_router, prefix="/api")
+    app.include_router(tutor_router, prefix="/api")
+    app.include_router(retention_router, prefix="/api")
+    app.include_router(curriculum_router, prefix="/api")
+    app.include_router(generator_router, prefix="/api")
+    app.include_router(difficulty_router, prefix="/api")
+    app.include_router(retrieval_router, prefix="/api")
+    app.include_router(transfer_router, prefix="/api")
     return app
 
 

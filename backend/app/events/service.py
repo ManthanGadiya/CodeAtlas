@@ -28,6 +28,20 @@ SERVER_EVENT_TYPES = {
     # Phase 2.5: behavior signals (docs/Data_Model.md §39). Payload carries
     # behavior_type/severity/problem_slug plus rule-specific counters.
     "BEHAVIOR_OBSERVED",
+    # Phase 3.1: tutoring engine (docs/Tutoring_Engine.md §18, §66).
+    # HINT_REQUESTED = student asked, HINT_SHOWN = hint actually delivered.
+    "HINT_REQUESTED",
+    "HINT_SHOWN",
+    # Phase 3.6: retention & forgetting (docs/Forgeting_And_Retention.md §52-53).
+    "RETRIEVAL_ATTEMPTED",
+    # Phase 3.4: adaptive curriculum (docs/Adaptive_Curriculum.md §53-54).
+    "CURRICULUM_DECISION",
+    # Phase 3.2: problem generation (docs/Problem_Generator.md §59-64).
+    "PROBLEM_GENERATED",
+    # Phase 3.5: retrieval practice (Forgetting §51-52).
+    # Already uses RETRIEVAL_ATTEMPTED.
+    # Phase 3.7: transfer evaluation (Problem_Generator §49-51).
+    "TRANSFER_ATTEMPTED",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

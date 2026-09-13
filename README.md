@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟢 Level 1 (Foundation) Complete — Level 2 (Personalization) Underway — v0.1.0-dev**
+> **🟢 Levels 1, 2 & 3 Complete — Adaptive Intelligence Shipped — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is well underway: every submit flows through a rule-based mastery engine into per-skill student states, failed submissions are deterministically classified into a mistake taxonomy with recurrence tracking, and a new behavior layer now observes how the student works (repeated retries, revision bursts, test discipline, productive persistence). All of this is exposed via `GET /api/analytics/learner` for the personalized dashboard to consume.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed all seven engines: **3.1 Tutoring** (ladder 0-7 via AI Gateway), **3.6 Retention** (R(t)=exp(-t/S)), **3.4 Adaptive Curriculum** (scored next-problem), **3.2 Problem Generator** (validated mutations), **3.3 Adaptive Difficulty** (6-D vector + IRT), **3.5 Retrieval Practice** (deliberate scheduling + ladder), and **3.7 Transfer Evaluation** (T0-T5 context_shift probes). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, `GET /api/retention/overview`, `GET /api/curriculum/next`, `POST /api/generator/mutate`, `GET /api/difficulty/recommend`, `GET /api/retrieval/due`, and `GET /api/transfer/due`.
 
 ### Current Milestone
 
-**Now: Levels 1 & 2 complete (`main` at `a3ea605`)** — 0010 Sessions, 0011 Hierarchy (13 skills + 11 edges), 0012 Aggregate State. Next requires user choice: retention engine, AI gateway, or frontend Monaco.
+**Now: Levels 1, 2 & 3 complete (`feature/transfer-evaluation`, 0019 transfer_evaluations)** — Level 3 Adaptive Intelligence shipped. Next: Level 4 research deferred today per owner request — stabilize Level 3, harden evaluation, no RL/recommendation policy today.
 
 ```text
 Problem

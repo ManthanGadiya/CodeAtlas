@@ -34,6 +34,29 @@ export default function DashboardPage() {
   const { student, loading: authLoading, offline } = useRequireAuth();
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [learner, setLearner] = useState<LearnerSummary | null>(null);
+  const [retention, setRetention] = useState<
+    Array<{
+      skill_slug: string;
+      skill_name: string;
+      stability: number;
+      retrieval_probability: number;
+      next_recommended_review: string | null;
+      due: boolean;
+    }>
+  >([]);
+  const [nextUp, setNextUp] = useState<{
+    problem_slug: string;
+    problem_title: string;
+    difficulty: string;
+    decision_type: string;
+    reason: string;
+    confidence: number;
+  } | null>(null);
+  const [difficultyRec, setDifficultyRec] = useState<{
+    target_overall: number;
+    band: string;
+    reason: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,6 +77,30 @@ export default function DashboardPage() {
       })
       .catch(() => {
         // learner endpoint is additive — dashboard stays useful without it
+      });
+    api
+      .retentionOverview()
+      .then((data) => {
+        if (!cancelled) setRetention(data);
+      })
+      .catch(() => {
+        // retention is additive — keep dashboard honest without it
+      });
+    api
+      .curriculumNext()
+      .then((data) => {
+        if (!cancelled) setNextUp(data);
+      })
+      .catch(() => {
+        // curriculum is additive
+      });
+    api
+      .difficultyRecommend()
+      .then((data) => {
+        if (!cancelled) setDifficultyRec(data);
+      })
+      .catch(() => {
+        // difficulty is additive
       });
     return () => {
       cancelled = true;
@@ -77,6 +124,28 @@ export default function DashboardPage() {
       <p className="mt-1 text-sm text-neutral-500">
         Observations of your practice — honest numbers, no pretend intelligence.
       </p>
+
+      {nextUp && (
+        <div className="mt-6 rounded-lg border border-sky-200 bg-sky-50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">Recommended next</p>
+          <Link href={`/problems/${nextUp.problem_slug}`} className="mt-1 block text-base font-semibold hover:underline">
+            {nextUp.problem_title} · <span className="text-sm font-normal capitalize">{nextUp.difficulty}</span>
+          </Link>
+          <p className="mt-1 text-sm text-neutral-700">
+            {nextUp.decision_type} · {nextUp.reason} · confidence {nextUp.confidence.toFixed(2)}
+          </p>
+        </div>
+      )}
+
+      {difficultyRec && (
+        <div className="mt-4 rounded-lg border border-violet-200 bg-violet-50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">Adaptive difficulty</p>
+          <p className="mt-1 text-sm font-medium capitalize">
+            Target: {difficultyRec.band} (overall {difficultyRec.target_overall.toFixed(2)})
+          </p>
+          <p className="mt-1 text-sm text-neutral-700">{difficultyRec.reason}</p>
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="mt-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -323,6 +392,40 @@ export default function DashboardPage() {
                     </span>
                     <span className="ml-auto text-xs text-neutral-500">
                       ×{pattern.frequency} · confidence {pattern.confidence.toFixed(2)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {/* Retention — due for review */}
+          {retention.length > 0 && (
+            <>
+              <h3 className="mt-8 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                Retention — what may be fading
+              </h3>
+              <p className="mt-1 text-xs text-neutral-500">
+                R(t) = exp(-t / S). Stability grows on success, shrinks on failure. Review when due.
+              </p>
+              <ul className="mt-3 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
+                {retention.map((item) => (
+                  <li key={item.skill_slug} className="flex items-center gap-3 px-5 py-4 text-sm">
+                    <span className="font-medium">{item.skill_name}</span>
+                    <span className="text-xs text-neutral-500">
+                      S {item.stability.toFixed(1)}d · R {item.retrieval_probability.toFixed(2)}
+                    </span>
+                    {item.next_recommended_review && (
+                      <span className="text-xs text-neutral-400">
+                        next {new Date(item.next_recommended_review).toLocaleDateString()}
+                      </span>
+                    )}
+                    <span
+                      className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${
+                        item.due ? "bg-amber-100 text-amber-800" : "bg-neutral-100 text-neutral-600"
+                      }`}
+                    >
+                      {item.due ? "due" : "stable"}
                     </span>
                   </li>
                 ))}
