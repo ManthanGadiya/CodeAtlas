@@ -60,7 +60,9 @@ def test_recommend_after_submit_targets_higher(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="rec2@example.com")
     # Successful submit should raise avg mastery → target shifts up
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"}
+    )
     resp = client.get("/api/difficulty/recommend")
     assert resp.status_code == 200
     assert resp.json()["target_overall"] >= 0.2
@@ -85,7 +87,10 @@ def test_calibration_adjusts_overall(client, db_session):
 def test_calibration_404(client, db_session):
     seed_problems(db_session)
     _register(client, email="cal404@example.com")
-    assert client.post("/api/difficulty/calibrate/no-such", params={"success_rate": 0.5}).status_code == 404
+    assert (
+        client.post("/api/difficulty/calibrate/no-such", params={"success_rate": 0.5}).status_code
+        == 404
+    )
 
 
 def test_estimate_zone_shifts_with_mastery(client, db_session, runner_fake):
@@ -102,12 +107,19 @@ def test_estimate_zone_shifts_with_mastery(client, db_session, runner_fake):
             exit_code=0,
             stdout_tail="",
             stderr_tail="",
-            results=[{"name": t["name"], "passed": False, "actual": "x", "error": None} for t in kwargs["tests"]],
+            results=[
+                {"name": t["name"], "passed": False, "actual": "x", "error": None}
+                for t in kwargs["tests"]
+            ],
         )
 
     runner_fake.run = failing_run.__get__(runner_fake)
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,0]"})
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,0]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,0]"}
+    )
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,0]"}
+    )
     resp = client.get("/api/difficulty/estimate/two-sum")
     assert resp.status_code == 200
     # After failures mastery low, p_success should be lower than 0.85

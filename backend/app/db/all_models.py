@@ -17,6 +17,7 @@ import app.generator.service  # noqa: F401
 import app.mistakes.models  # noqa: F401
 import app.problems.models  # noqa: F401
 import app.retention.models  # noqa: F401
+import app.retrieval.models  # noqa: F401
 import app.skills.models  # noqa: F401
 import app.tutor.models  # noqa: F401
 import app.users.models  # noqa: F401

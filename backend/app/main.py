@@ -19,6 +19,7 @@ from app.execution.routes import router as execution_router
 from app.generator.routes import router as generator_router
 from app.problems.routes import router as problems_router
 from app.retention.routes import router as retention_router
+from app.retrieval.routes import router as retrieval_router
 from app.sessions.routes import router as sessions_router
 from app.tutor.routes import router as tutor_router
 
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
     app.include_router(curriculum_router, prefix="/api")
     app.include_router(generator_router, prefix="/api")
     app.include_router(difficulty_router, prefix="/api")
+    app.include_router(retrieval_router, prefix="/api")
     return app
 
 

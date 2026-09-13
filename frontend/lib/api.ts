@@ -334,4 +334,46 @@ export const api = {
       total_problems: number;
       reason: string;
     }>("/difficulty/recommend"),
+
+  retrievalDue: () =>
+    apiFetch<
+      Array<{
+        skill_id: string;
+        skill_slug: string;
+        skill_name: string;
+        mastery: number;
+        stability: number;
+        retrieval_probability: number;
+        due: boolean;
+        recommended_problem_slug: string | null;
+        ladder: string;
+      }>
+    >("/retrieval/due"),
+
+  retrievalSchedule: (skillId?: string) =>
+    apiFetch<{
+      id: string;
+      skill_id: string;
+      problem_id: string | null;
+      ladder_level: string;
+      scheduled_for: string;
+      status: string;
+    }>("/retrieval/schedule", {
+      method: "POST",
+      body: JSON.stringify(skillId ? { skill_id: skillId } : {}),
+    }),
+
+  retrievalHistory: () =>
+    apiFetch<
+      Array<{
+        id: string;
+        skill_id: string;
+        problem_id: string | null;
+        ladder_level: string;
+        scheduled_for: string;
+        status: string;
+        result: string | null;
+        created_at: string;
+      }>
+    >("/retrieval/history"),
 };
