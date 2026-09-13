@@ -52,6 +52,11 @@ export default function DashboardPage() {
     reason: string;
     confidence: number;
   } | null>(null);
+  const [difficultyRec, setDifficultyRec] = useState<{
+    target_overall: number;
+    band: string;
+    reason: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -89,6 +94,14 @@ export default function DashboardPage() {
       .catch(() => {
         // curriculum is additive
       });
+    api
+      .difficultyRecommend()
+      .then((data) => {
+        if (!cancelled) setDifficultyRec(data);
+      })
+      .catch(() => {
+        // difficulty is additive
+      });
     return () => {
       cancelled = true;
     };
@@ -121,6 +134,16 @@ export default function DashboardPage() {
           <p className="mt-1 text-sm text-neutral-700">
             {nextUp.decision_type} · {nextUp.reason} · confidence {nextUp.confidence.toFixed(2)}
           </p>
+        </div>
+      )}
+
+      {difficultyRec && (
+        <div className="mt-4 rounded-lg border border-violet-200 bg-violet-50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">Adaptive difficulty</p>
+          <p className="mt-1 text-sm font-medium capitalize">
+            Target: {difficultyRec.band} (overall {difficultyRec.target_overall.toFixed(2)})
+          </p>
+          <p className="mt-1 text-sm text-neutral-700">{difficultyRec.reason}</p>
         </div>
       )}
 

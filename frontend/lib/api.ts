@@ -292,4 +292,46 @@ export const api = {
         created_at: string;
       }>
     >("/curriculum/decisions"),
+
+  difficultyOverview: () =>
+    apiFetch<
+      Array<{
+        slug: string;
+        title: string;
+        difficulty: string;
+        overall: number;
+        vector: {
+          conceptual: number;
+          implementation: number;
+          reasoning: number;
+          debugging: number;
+          constraints: number;
+          transfer: number;
+        };
+        confidence: number;
+      }>
+    >("/difficulty/overview"),
+
+  difficultyEstimate: (slug: string) =>
+    apiFetch<{
+      slug: string;
+      overall: number;
+      vector: Record<string, number>;
+      confidence: number;
+      model_version: string;
+      student_mastery: number;
+      p_success: number;
+      student_specific_difficulty: number;
+      zone: string;
+    }>(`/difficulty/estimate/${slug}`),
+
+  difficultyRecommend: () =>
+    apiFetch<{
+      target_overall: number;
+      band: string;
+      avg_mastery: number;
+      productive_problems: number;
+      total_problems: number;
+      reason: string;
+    }>("/difficulty/recommend"),
 };
