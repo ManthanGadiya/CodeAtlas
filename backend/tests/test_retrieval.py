@@ -26,7 +26,9 @@ def test_due_empty_before_evidence(client, db_session):
 def test_schedule_and_complete_success(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="sched@example.com")
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"}
+    )
     # There should now be due/weak items (interleaved 2)
     due = client.get("/api/retrieval/due").json()
     assert len(due) >= 1
@@ -35,9 +37,18 @@ def test_schedule_and_complete_success(client, db_session, runner_fake):
     assert resp.status_code == 201, resp.text
     sid = resp.json()["id"]
     assert resp.json()["status"] == "pending"
-    assert resp.json()["ladder_level"] in ("recognition", "explain", "partial", "recall", "application", "transfer")
+    assert resp.json()["ladder_level"] in (
+        "recognition",
+        "explain",
+        "partial",
+        "recall",
+        "application",
+        "transfer",
+    )
     # Complete successfully
-    comp = client.post(f"/api/retrieval/complete/{sid}", json={"result": "success", "confidence": 0.8})
+    comp = client.post(
+        f"/api/retrieval/complete/{sid}", json={"result": "success", "confidence": 0.8}
+    )
     assert comp.status_code == 200
     assert comp.json()["result"] == "success"
     # Completing same schedule again → 422
@@ -54,7 +65,9 @@ def test_schedule_and_complete_success(client, db_session, runner_fake):
 def test_schedule_explicit_skill(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="explicit@example.com")
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"}
+    )
     # Fetch a skill_id from retention overview
     ov = client.get("/api/retention/overview").json()
     assert len(ov) >= 1
@@ -67,7 +80,9 @@ def test_schedule_explicit_skill(client, db_session, runner_fake):
 def test_complete_failure_decreases_stability(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="failRet@example.com")
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"}
+    )
     sched = client.post("/api/retrieval/schedule", json={}).json()
     before = client.get("/api/retention/overview").json()
     before_stab = {r["skill_id"]: r["stability"] for r in before}[sched["skill_id"]]
@@ -81,9 +96,13 @@ def test_complete_failure_decreases_stability(client, db_session, runner_fake):
 def test_complete_partial(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="partial@example.com")
-    client.post("/api/problems/valid-palindrome/submit", json={"code": "def is_palindrome(s): return True"})
+    client.post(
+        "/api/problems/valid-palindrome/submit", json={"code": "def is_palindrome(s): return True"}
+    )
     sched = client.post("/api/retrieval/schedule", json={}).json()
-    comp = client.post(f"/api/retrieval/complete/{sched['id']}", json={"result": "partial", "confidence": 0.5})
+    comp = client.post(
+        f"/api/retrieval/complete/{sched['id']}", json={"result": "partial", "confidence": 0.5}
+    )
     assert comp.status_code == 200
     assert comp.json()["result"] == "partial"
 
@@ -91,7 +110,9 @@ def test_complete_partial(client, db_session, runner_fake):
 def test_history_and_pending_count(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="hist@example.com")
-    client.post("/api/problems/valid-parentheses/submit", json={"code": "def is_valid(s): return True"})
+    client.post(
+        "/api/problems/valid-parentheses/submit", json={"code": "def is_valid(s): return True"}
+    )
     s1 = client.post("/api/retrieval/schedule", json={}).json()
     client.post("/api/retrieval/schedule", json={}).json()
     hist = client.get("/api/retrieval/history").json()
@@ -115,7 +136,9 @@ def test_schedule_no_skill_422(client, db_session):
 def test_complete_invalid_result(client, db_session, runner_fake):
     seed_problems(db_session)
     _register(client, email="badresult@example.com")
-    client.post("/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"})
+    client.post(
+        "/api/problems/two-sum/submit", json={"code": "def two_sum(nums, target): return [0,1]"}
+    )
     sched = client.post("/api/retrieval/schedule", json={}).json()
     resp = client.post(f"/api/retrieval/complete/{sched['id']}", json={"result": "bogus"})
     assert resp.status_code == 422

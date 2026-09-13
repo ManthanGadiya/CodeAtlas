@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟢 Levels 1, 2, 3.1, 3.6, 3.4, 3.2, 3.3 & 3.5 Complete — Adaptive Intelligence Underway — v0.1.0-dev**
+> **🟢 Levels 1, 2 & 3 Complete — Adaptive Intelligence Shipped — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed six engines: **3.1 Tutoring** (ladder 0-7 via AI Gateway), **3.6 Retention** (R(t)=exp(-t/S) per skill), **3.4 Adaptive Curriculum** (scored next-problem), **3.2 Problem Generator** (validated mutations), **3.3 Adaptive Difficulty** (6-D vector + IRT), and **3.5 Retrieval Practice** (deliberate scheduling + ladder → transfer). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, `GET /api/retention/overview`, `GET /api/curriculum/next`, `POST /api/generator/mutate`, `GET /api/difficulty/recommend`, and `GET /api/retrieval/due`.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed all seven engines: **3.1 Tutoring** (ladder 0-7 via AI Gateway), **3.6 Retention** (R(t)=exp(-t/S)), **3.4 Adaptive Curriculum** (scored next-problem), **3.2 Problem Generator** (validated mutations), **3.3 Adaptive Difficulty** (6-D vector + IRT), **3.5 Retrieval Practice** (deliberate scheduling + ladder), and **3.7 Transfer Evaluation** (T0-T5 context_shift probes). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, `GET /api/retention/overview`, `GET /api/curriculum/next`, `POST /api/generator/mutate`, `GET /api/difficulty/recommend`, `GET /api/retrieval/due`, and `GET /api/transfer/due`.
 
 ### Current Milestone
 
-**Now: Levels 1, 2, 3.1, 3.6, 3.4, 3.2, 3.3 & 3.5 complete (`feature/retrieval-practice`, 0018 retrieval_schedules)** — Socratic hints + forgetting curves + recommended next + generated variants + adaptive difficulty + retrieval practice live. Next: Phase 3.7 Transfer Evaluation → Level 4 research (unified model, causal experiments).
+**Now: Levels 1, 2 & 3 complete (`feature/transfer-evaluation`, 0019 transfer_evaluations)** — Level 3 Adaptive Intelligence shipped. Next: Level 4 research deferred today per owner request — stabilize Level 3, harden evaluation, no RL/recommendation policy today.
 
 ```text
 Problem

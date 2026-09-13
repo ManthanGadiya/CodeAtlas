@@ -38,6 +38,10 @@ SERVER_EVENT_TYPES = {
     "CURRICULUM_DECISION",
     # Phase 3.2: problem generation (docs/Problem_Generator.md §59-64).
     "PROBLEM_GENERATED",
+    # Phase 3.5: retrieval practice (Forgetting §51-52).
+    # Already uses RETRIEVAL_ATTEMPTED.
+    # Phase 3.7: transfer evaluation (Problem_Generator §49-51).
+    "TRANSFER_ATTEMPTED",
 }
 EVENT_TYPES = CLIENT_EVENT_TYPES | SERVER_EVENT_TYPES
 

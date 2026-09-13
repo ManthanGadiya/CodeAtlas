@@ -376,4 +376,44 @@ export const api = {
         created_at: string;
       }>
     >("/retrieval/history"),
+
+  transferDue: () =>
+    apiFetch<
+      Array<{
+        skill_id: string;
+        skill_slug: string;
+        skill_name: string;
+        mastery: number;
+        evidence_count: number;
+        source_problem_slug: string | null;
+        suggested_level: string;
+        level_desc: string;
+      }>
+    >("/transfer/due"),
+
+  transferSchedule: (skillId?: string, level: string = "T2") =>
+    apiFetch<{
+      id: string;
+      skill_id: string;
+      source_problem_id: string | null;
+      transfer_problem_id: string;
+      transfer_level: string;
+    }>("/transfer/schedule", {
+      method: "POST",
+      body: JSON.stringify(skillId ? { skill_id: skillId, transfer_level: level } : { transfer_level: level }),
+    }),
+
+  transferHistory: () =>
+    apiFetch<
+      Array<{
+        id: string;
+        skill_id: string;
+        source_problem_id: string | null;
+        transfer_problem_id: string;
+        transfer_level: string;
+        result: string | null;
+        created_at: string;
+        completed_at: string | null;
+      }>
+    >("/transfer/history"),
 };
