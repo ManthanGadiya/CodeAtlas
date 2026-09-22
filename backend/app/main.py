@@ -15,6 +15,7 @@ from app.auth.routes import router as auth_router
 from app.core.config import get_settings
 from app.curriculum.routes import router as curriculum_router
 from app.difficulty.routes import router as difficulty_router
+from app.evaluation.routes import router as evaluation_router
 from app.events.routes import router as events_router
 from app.execution.routes import router as execution_router
 from app.generator.routes import router as generator_router
@@ -172,6 +173,7 @@ def create_app() -> FastAPI:
     app.include_router(difficulty_router, prefix="/api")
     app.include_router(retrieval_router, prefix="/api")
     app.include_router(transfer_router, prefix="/api")
+    app.include_router(evaluation_router, prefix="/api")
     return app
 
 

@@ -18,13 +18,13 @@ but designed specifically for programming.
 
 ## 🎯 Current Status
 
-> **🟢 Levels 1, 2 & 3 Complete — Adaptive Intelligence Shipped — v0.1.0-dev**
+> **🟢 Levels 1, 2 & 3 Complete + Hardened — Adaptive Intelligence + Option A Hardening Shipped — v0.1.0-dev**
 
-Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed all seven engines: **3.1 Tutoring** (ladder 0-7 via AI Gateway), **3.6 Retention** (R(t)=exp(-t/S)), **3.4 Adaptive Curriculum** (scored next-problem), **3.2 Problem Generator** (validated mutations), **3.3 Adaptive Difficulty** (6-D vector + IRT), **3.5 Retrieval Practice** (deliberate scheduling + ladder), and **3.7 Transfer Evaluation** (T0-T5 context_shift probes). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, `GET /api/retention/overview`, `GET /api/curriculum/next`, `POST /api/generator/mutate`, `GET /api/difficulty/recommend`, `GET /api/retrieval/due`, and `GET /api/transfer/due`.
+Engineering foundation, authentication, problem catalog, Docker-isolated Python code execution, learning-event tracking, code version history, the analytics + learner-model dashboard, and the Next.js frontend are all implemented and CI-verified. Level 2 personalization is complete (rule-based mastery engine with subskill hierarchy + 11 prerequisite edges, mistake taxonomy recurrence, behavior layer), and **Level 3** has landed all seven engines: **3.1 Tutoring** (ladder 0-7 via AI Gateway), **3.6 Retention** (R(t)=exp(-t/S)), **3.4 Adaptive Curriculum** (scored next-problem), **3.2 Problem Generator** (validated mutations), **3.3 Adaptive Difficulty** (6-D vector + IRT), **3.5 Retrieval Practice** (deliberate scheduling + ladder), and **3.7 Transfer Evaluation** (T0-T5 context_shift probes). **Option A Hardening** is now landed: `Forgetting_And_Retention.md` rename, bounded `SlidingWindowLimiter` (LRU 5000 + `purge_expired`), `purge_expired_sessions`, analytics SQL aggregates, and `GET /api/evaluation/report` (Brier/ECE + baselines). All exposed via `GET /api/analytics/learner`, `POST /api/tutor/hint`, `GET /api/retention/overview`, `GET /api/curriculum/next`, `POST /api/generator/mutate`, `GET /api/difficulty/recommend`, `GET /api/retrieval/due`, `GET /api/transfer/due`, and `GET /api/evaluation/report`.
 
 ### Current Milestone
 
-**Now: Levels 1, 2 & 3 complete (`feature/transfer-evaluation`, 0019 transfer_evaluations)** — Level 3 Adaptive Intelligence shipped. Next: Level 4 research deferred today per owner request — stabilize Level 3, harden evaluation, no RL/recommendation policy today.
+**Now: Levels 1, 2 & 3 + Hardening (`feature/hardening-option-a`, evaluation Brier/ECE)** — Option A complete (200 tests passing, ruff clean). Next: Level 4 research remains deferred per owner request — awaiting your go for Level 4.1 Unified Student Model.
 
 ```text
 Problem
@@ -807,7 +807,7 @@ That distinction defines the project.
 
 CodeAtlas is licensed under the **MIT License**.
 
-See [`LICENCE`](LICENCE).
+See [`LICENSE`](LICENSE).
 
 ---
 

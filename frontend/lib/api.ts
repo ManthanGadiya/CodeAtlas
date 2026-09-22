@@ -416,4 +416,30 @@ export const api = {
         completed_at: string | null;
       }>
     >("/transfer/history"),
+
+  evaluationReport: () =>
+    apiFetch<{
+      n: number;
+      brier: number | null;
+      baseline_brier: number | null;
+      ece: number | null;
+      calibration: Array<{
+        bin_low: number;
+        bin_high: number;
+        count: number;
+        avg_predicted: number;
+        avg_observed: number;
+        gap: number;
+      }>;
+      comparison: {
+        model_brier: number;
+        baseline_brier: number;
+        delta: number;
+        improvement_pct: number;
+        model_better: boolean;
+      } | null;
+      message?: string;
+    }>("/evaluation/report"),
+
+  evaluationHealth: () => apiFetch<{ status: string; module: string; version: string }>("/evaluation/health"),
 };

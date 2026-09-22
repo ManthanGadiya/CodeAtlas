@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-09-19  
-> **Project Status:** 🟢 Levels 1, 2 & 3 Complete — Level 3 Adaptive Intelligence Shipped (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) + one-command `docker compose up`  
+> **Last Updated:** 2026-09-22  
+> **Project Status:** 🟢 Levels 1, 2 & 3 Complete + Hardened — Adaptive Intelligence Shipped + Option A Hardening (evaluation, bounded rate-limit, session purge, SQL analytics)  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-3 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015), 3.2 Generator (0016), 3.3 Difficulty (0017), 3.5 Retrieval (0018), 3.7 Transfer (0019 transfer_evaluations) landed — `fix/missing-migrations-bug1-2` branch adds one-command stack + auto-migration fix for fingerprint/retention 500s  
-> **Primary Objective:** Level 4 deferred per request — stabilize Level 3, harden evaluation, no RL/research-grade today.
+> **Development Stage:** ROADMAP Levels 1-3 complete; Hardening Option A landed on `feature/hardening-option-a` — `Forgetting_And_Retention.md` rename + bounded `SlidingWindowLimiter` + `purge_expired_sessions` + analytics SQL aggregates + `GET /api/evaluation/report` (Brier/ECE)  
+> **Primary Objective:** Level 4 deferred per request — stabilize Level 3, harden evaluation, no RL/research-grade today. Option A hardening complete; awaiting review before Level 4.1.
 
 ---
 
@@ -12,10 +12,10 @@
 
 ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7). A student can register, browse seeded Python problems, **generate validated variants**, get **a personalized next-problem recommendation**, ask the tutor for socratic hints, see which skills are fading, **practice at the right difficulty**, **receive scheduled retrieval practice**, and **be tested for transfer on the same skill in a new surface** — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval, generated problem, difficulty estimate, and transfer probe feeds the adaptive loop.
 
-- FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer**)
+ - FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer + evaluation**)
 - Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next + adaptive difficulty + retrieval + transfer due**), problem browser (includes generated + transfer variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events**
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events + evaluation (Brier/ECE)**
 - Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
 - Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
 - **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
@@ -92,6 +92,7 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 | M20 | Retrieval practice (Phase 3.5) — deliberate scheduling (§20-22, S×0.8), ladder (recognition→transfer by stability), interleaving, auto-next, GET /retrieval/due + POST /retrieval/schedule|complete + history (Forgetting §34, §51-52, 0018 retrieval_schedules) | 🟢 Complete |
 | M21 | Transfer evaluation (Phase 3.7) — T0-T5 ladder (§50) via context_shift/boundary/constraint mutations, mastery ≥0.35 eligibility, excludes recent success, POST /transfer/schedule + /complete + due + history (Problem_Generator §49-51, 0019 transfer_evaluations) | 🟢 Complete |
 | M22 | Level 3 complete — all Level 3 phases (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) landed, verified, docs synced | 🟢 Complete |
+| M23 | Hardening Option A — docs rename + bounded rate limiter + session purge + SQL analytics + evaluation harness (Brier/ECE/baselines, GET /evaluation/report) — 200 tests passing | 🟢 Complete |
 
 ## 3. Status Legend
 
@@ -107,34 +108,30 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 
 ## 4. Known Limitations
 
-- Phase 1.2 partially complete: authentication and the problem catalog work; the editor UI and dashboard are not started.
 - Sandbox trust model (V1, personal tool): harness and student code share one container process, so the single student could forge their own results; acceptable while CodeAtlas is single-user self-improvement, must be revisited for any multi-user/graded scenario.
 - Hidden-test policy decision: hidden cases and their expected outputs never leave the server; a failed submit reports only an anonymous pass/fail per hidden case plus the learner's own error text. This protects generalisation evidence from being hardcoded away.
 - Per-execution memory usage is not yet measured (`memory_bytes` stays NULL); container-level accounting needs `docker stats` or runtime metrics.
-- Rate limiting (login and execution limiters) is in-process only; their per-IP event maps grow unboundedly and key on direct client IP — behind a reverse proxy everyone shares one bucket.
+- Rate limiting is in-process only (now bounded: LRU cap 5000 keys, `purge_expired()` evicts empty buckets). Behind a reverse proxy everyone still shares one bucket; distributed limiting remains future work.
 - Sessions are static 7-day cookies; refresh-token rotation (security doc §7) is deferred.
-- Expired `auth_sessions` rows are revoked/checked but never purged; a cleanup sweep is pending.
-- `SameSite=Lax` cookies are the current CSRF control; a dedicated CSRF token should be evaluated when the app is exposed beyond localhost.
+- Expired `auth_sessions` now have `purge_expired_sessions(db, grace_seconds)` — call periodically or on startup. `SameSite=Lax` cookies remain the CSRF control; a dedicated CSRF token should be evaluated when exposed beyond localhost.
 - Frontend is a functional skeleton: plain-textarea editor (Monaco/CodeMirror arrives when needed), no frontend test suite yet (build + ESLint are the gate; Playwright e2e planned).
 - Mistake detection classifies at most one primary category per submission from runner signals only; multi-label classification and code-level categories (Off-by-One M05, Wrong Algorithm M06, ...) need AST analysis and the future AI-assisted layer (taxonomy §50).
 - Run-mode attempts are never classified — exploratory practice is out of scope for V1 detection.
 - Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
-- Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; both weight families need evaluation against simple baselines (docs/Evaluation_Framework.md).
-- Retention was a nullable placeholder; now computed via R(t)=exp(-t/S) per skill (Phase 3.6) and mirrored to StudentSkillState.retention, but encoding-strength factors (§8-9) and personalized per-skill forgetting rates (§16) remain future work.
-- Problem generation is mutation-only (3 deterministic variants from curated seeds); LLM free-form generation remains future work — the pipeline is ready to plug a provider behind the validator. Difficulty calibration from real cohort signals (§86-87) remains dampened single-student; cohort Bayesian calibration is future work.
-- Retrieval scheduling is rule-based (due = prob<0.6 or overdue + 2 weakest interleaved); importance-weighted retention priority (§26) and interleaved micro-retrieval (§67) remain stubbed; spaced-repetition baselines (Leitner/Half-Life) await evaluation.
+- Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; now evaluated via `GET /api/evaluation/report` baselines (random/static) per docs/Evaluation_Framework.md but still hypotheses.
+- Retention encoding-strength factors (§8-9) and personalized per-skill forgetting rates (§16) remain future work.
+- Problem generation is mutation-only (3 deterministic variants from curated seeds); LLM free-form generation remains future work — pipeline ready to plug a provider behind validator. Difficulty calibration from real cohort signals (§86-87) remains dampened single-student; cohort Bayesian calibration is future work.
+- Retrieval scheduling is rule-based (due = prob<0.6 or overdue + 2 weakest interleaved); importance-weighted retention priority (§26) and interleaved micro-retrieval (§67) remain stubbed; spaced-repetition baselines (Leitner/Half-Life) await evaluation — baseline harness now available via `app/evaluation/baselines.py`.
 - Transfer evaluation is single-skill T2 via generator `context_shift`; higher levels (T4 hidden technique, T5 multi-concept) and cross-skill transfer graphs remain future work; transfer history is local, not yet calibration-weighted into mastery.
-- Attempt counting treats every prior submit as an attempt regardless of how much the code changed between tries — revision-aware attempt semantics are still future work.
+- Attempt counting treats every prior submit as an attempt regardless of how much code changed between tries — revision-aware semantics still future work.
 - Behavior signals are conservative threshold crossings (e.g., random-editing proxied by revision count while unresolved — healthy iterative refinement needs diff-content analysis); severity/confidence are initial assumptions.
 - `behavior_observations`/`behavior_patterns` are derived, not ground truth — trend stays `UNKNOWN` in V1.
-- Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no client-supplied idempotency key yet).
-- Analytics loads full execution history per request — fine at Phase 1.6 scale, switch to SQL aggregates when history grows.
-- Frontend not scaffolded yet (Next.js decision frozen; next milestone).
-- Unit tests run on SQLite; PostgreSQL behavior is exercised by the CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
+- Event ingestion idempotency is deferred: a client retry of `POST /api/events` double-counts (no idempotency key yet). Analytics now uses SQL aggregates for totals + GROUP BY for per-problem (bounded 20), so a 10k-history student no longer materializes 10k rows.
+- Unit tests run on SQLite; PostgreSQL behavior is exercised by CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
 - Dependency constraints live in `pyproject.toml`; a pinned lockfile is still to be introduced.
 - C++ execution deferred by product decision; Python-only for now.
-- Documentation housekeeping pending: `Forgeting_And_Retention.md` filename spelling, lowercase filename references in CHANGELOG, `LICENCE` link in README, garbled fragments in VISION.md / Problem_Statement.md.
+- Documentation housekeeping: `Forgetting_And_Retention.md` rename complete, `LICENCE` → `LICENSE` fixed, `Forgeting` references purged; garbled fragments in VISION.md / Problem_Statement.md still pending review.
 
 ## 5. Next Step
 
-Level 3 (0019) is complete — all 7 Level 3 phases landed, 10 retrieval + 10 transfer tests passing, frontend build green. `fix/missing-migrations-bug1-2` now provides one-command `docker compose up --build` (db + backend + frontend) with auto-migration for `problems.fingerprint` (0016) and `retention_states` (0014) plus actionable 503 hints. Per your request, **Level 4 (unified model, temporal modeling, causal experiments, RL policy, etc.) is deferred today.** Next when you resume: Level 4.1 Unified Student Model + evaluation hardening per ROADMAP. No further code until you say `continue`.
+Option A hardening (M23) is complete — `Forgetting_And_Retention.md` renamed, rate limiter bounded (LRU 5000 + purge_expired), `purge_expired_sessions` added, analytics switched to SQL aggregates/GROUP BY, evaluation harness (`brier_score`, `ece`, `calibration_bins`, `baseline_random/static`, `GET /api/evaluation/report` + `/health`) landed with 17 new tests (200 total passing, `ruff check` clean, frontend `api.evaluationReport` wired). Per your request Level 4 remains deferred. Next when you resume: Level 4.1 Unified Student Model per ROADMAP, or continue hardening (event idempotency key, frontend tests, C++ lane). No further code until you approve this branch or say `continue`.

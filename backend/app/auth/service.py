@@ -111,3 +111,26 @@ def revoke_session(db: Session, raw_token: str) -> bool:
     session_row.revoked_at = datetime.now(UTC)
     db.commit()
     return True
+
+
+def purge_expired_sessions(db: Session, grace_seconds: int = 0) -> int:
+    """Delete auth_sessions that are expired or revoked and past grace.
+
+    Hardening for STATUS.md: expired rows were revoked/checked but never
+    purged.  Call from a periodic job or on startup.  ``grace_seconds``
+    keeps recently-expired rows for audit; 0 purges immediately.
+    """
+    cutoff = datetime.now(UTC) - timedelta(seconds=grace_seconds)
+    rows = db.scalars(
+        select(AuthSession).where(
+            (AuthSession.expires_at < cutoff)
+            | ((AuthSession.revoked_at.is_not(None)) & (AuthSession.revoked_at < cutoff))
+        )
+    ).all()
+    count = 0
+    for row in rows:
+        db.delete(row)
+        count += 1
+    if count:
+        db.commit()
+    return count

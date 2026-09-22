@@ -1,4 +1,4 @@
-"""Retention & forgetting engine — deterministic V1 (docs/Forgeting_And_Retention.md §56).
+"""Retention & forgetting engine — deterministic V1 (docs/Forgetting_And_Retention.md §56).
 
 Design choices (rule-based, §56 Version 1):
   - Forgetting curve: R(t) = exp(-t / S)  (§15, §25)

@@ -1,4 +1,4 @@
-"""0014 — retention states (ROADMAP Phase 3.6, docs/Forgeting_And_Retention.md §51).
+"""0014 — retention states (ROADMAP Phase 3.6, docs/Forgetting_And_Retention.md §51).
 
 Rule-based V1 per §56: exponential decay R(t)=exp(-t/S) with adaptive
 stability (§23-24, §54).  Retention was previously a NULL placeholder on
