@@ -57,6 +57,20 @@ export default function DashboardPage() {
     band: string;
     reason: string;
   } | null>(null);
+  const [unified, setUnified] = useState<{
+    summary: {
+      overall_mastery: number;
+      confidence: number;
+      retention_score: number;
+      independence_score: number;
+      learning_velocity: number;
+      trend: string;
+    };
+    knowledge: { gaps: Array<{ skill_slug: string; skill_name: string }>; strengths: Array<{ skill_slug: string; skill_name: string }> };
+    misconceptions: { open_count: number; recurring_count: number };
+    behavior: { pattern_count: number };
+    retention: { due_count: number };
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -102,6 +116,14 @@ export default function DashboardPage() {
       .catch(() => {
         // difficulty is additive
       });
+    api
+      .unifiedState()
+      .then((data) => {
+        if (!cancelled) setUnified(data as unknown as typeof unified);
+      })
+      .catch(() => {
+        // unified state is additive — Level 4.1 projection
+      });
     return () => {
       cancelled = true;
     };
@@ -144,6 +166,23 @@ export default function DashboardPage() {
             Target: {difficultyRec.band} (overall {difficultyRec.target_overall.toFixed(2)})
           </p>
           <p className="mt-1 text-sm text-neutral-700">{difficultyRec.reason}</p>
+        </div>
+      )}
+
+      {unified && (
+        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            Unified learning state — Level 4.1
+          </p>
+          <p className="mt-1 text-sm font-medium">
+            Mastery {unified.summary.overall_mastery.toFixed(2)} · Confidence {unified.summary.confidence.toFixed(2)} · Retention{" "}
+            {unified.summary.retention_score.toFixed(2)} · Independence {unified.summary.independence_score.toFixed(2)}
+          </p>
+          <p className="mt-1 text-sm text-neutral-700">
+            Velocity {unified.summary.learning_velocity.toFixed(3)} ({unified.summary.trend}) · Gaps {unified.knowledge.gaps.length} · Strong{" "}
+            {unified.knowledge.strengths.length} · Open mistakes {unified.misconceptions.open_count} · Due{" "}
+            {unified.retention.due_count}
+          </p>
         </div>
       )}
 
