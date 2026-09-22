@@ -1,21 +1,21 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-09-22  
-> **Project Status:** 🟢 Levels 1, 2 & 3 Complete + Hardened — Adaptive Intelligence Shipped + Option A Hardening (evaluation, bounded rate-limit, session purge, SQL analytics)  
+> **Project Status:** 🟢 Level 4.1 In Progress — Unified Student State (ROADMAP §32, Data_Model §8) — Level 4.1a aggregation landed  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-3 complete; Hardening Option A landed on `feature/hardening-option-a` — `Forgetting_And_Retention.md` rename + bounded `SlidingWindowLimiter` + `purge_expired_sessions` + analytics SQL aggregates + `GET /api/evaluation/report` (Brier/ECE)  
-> **Primary Objective:** Level 4 deferred per request — stabilize Level 3, harden evaluation, no RL/research-grade today. Option A hardening complete; awaiting review before Level 4.1.
+> **Development Stage:** ROADMAP Levels 1-3 complete + Hardening Option A merged (M23); Level 4.1 Unified Student Model in progress on `feature/unified-student-model` — deterministic projection `GET /api/learner/unified-state` combining Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences (ROADMAP §32)  
+> **Primary Objective:** Level 4.1 — build the unified student state (first research-grade projection) per owner go-ahead; still no RL/recommendation policy.
 
 ---
 
 # 1. Current State
 
-ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7). A student can register, browse seeded Python problems, **generate validated variants**, get **a personalized next-problem recommendation**, ask the tutor for socratic hints, see which skills are fading, **practice at the right difficulty**, **receive scheduled retrieval practice**, and **be tested for transfer on the same skill in a new surface** — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval, generated problem, difficulty estimate, and transfer probe feeds the adaptive loop.
+ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) plus Hardening Option A (evaluation harness). A student can register, browse seeded Python problems, **generate validated variants**, get **a personalized next-problem recommendation**, ask the tutor for socratic hints, see which skills are fading, **practice at the right difficulty**, **receive scheduled retrieval practice**, and **be tested for transfer on the same skill in a new surface** — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval, generated problem, difficulty estimate, and transfer probe feeds the adaptive loop. **Level 4.1** now adds the first research-grade projection: `GET /api/learner/unified-state` — a deterministic aggregation of Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences into one `StudentState` (ROADMAP §32).
 
- - FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer + evaluation**)
-- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next + adaptive difficulty + retrieval + transfer due**), problem browser (includes generated + transfer variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
+ - FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer + evaluation + unified-state**)
+- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next + adaptive difficulty + retrieval + transfer due + unified state card**), problem browser (includes generated + transfer variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
 - Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events + evaluation (Brier/ECE)**
+- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events + evaluation (Brier/ECE) + unified-state (4.1)**
 - Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
 - Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
 - **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
@@ -23,6 +23,7 @@ ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7). A st
 - **Difficulty engine**: 6-dimensional vector + IRT P(success) + zone + target band calibrated from success_rate
 - **Retrieval engine**: deliberate scheduling (§20-22: S×0.8, ×2/×0.5/×0.8), ladder recognition→transfer ramped by stability, interleaving, auto-next, RETRIEVAL_ATTEMPTED audit
 - **Transfer engine**: T0-T5 ladder (§50) context_shift variants, mastery ≥0.35 eligibility, excludes recent success, auditable TRANSFER_ATTEMPTED
+- **Unified state engine (Level 4.1a)**: deterministic projection (Data_Model §8, §32, §64) — `overall_mastery`/`confidence`/`retention_score`/`independence_score`/`learning_velocity` + gaps/strengths/misconceptions/behavior/due, mirrored to `student_learning_states` (was placeholder, now live). No new tables — pure aggregation, testable, event-sourcing friendly.
 - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
@@ -93,6 +94,7 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 | M21 | Transfer evaluation (Phase 3.7) — T0-T5 ladder (§50) via context_shift/boundary/constraint mutations, mastery ≥0.35 eligibility, excludes recent success, POST /transfer/schedule + /complete + due + history (Problem_Generator §49-51, 0019 transfer_evaluations) | 🟢 Complete |
 | M22 | Level 3 complete — all Level 3 phases (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) landed, verified, docs synced | 🟢 Complete |
 | M23 | Hardening Option A — docs rename + bounded rate limiter + session purge + SQL analytics + evaluation harness (Brier/ECE/baselines, GET /evaluation/report) — 200 tests passing | 🟢 Complete |
+| M24 | Unified student state — Level 4.1a (ROADMAP §32, Data_Model §8) — deterministic projection `GET /api/learner/unified-state` (Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences → StudentState) — persisted to `student_learning_states` — 213 tests passing | 🟡 In Progress |
 
 ## 3. Status Legend
 
@@ -130,8 +132,9 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 - Unit tests run on SQLite; PostgreSQL behavior is exercised by CI migration job (`upgrade` → `downgrade` → `upgrade`) but not yet by API integration tests.
 - Dependency constraints live in `pyproject.toml`; a pinned lockfile is still to be introduced.
 - C++ execution deferred by product decision; Python-only for now.
-- Documentation housekeeping: `Forgetting_And_Retention.md` rename complete, `LICENCE` → `LICENSE` fixed, `Forgeting` references purged; garbled fragments in VISION.md / Problem_Statement.md still pending review.
+ - Documentation housekeeping: `Forgetting_And_Retention.md` rename complete, `LICENCE` → `LICENSE` fixed, `Forgeting` references purged; garbled fragments in VISION.md / Problem_Statement.md still pending review.
+- Level 4.1a note: `student_learning_states` was a 0.3/0.5 placeholder — now live via `build_unified_state` mirroring `overall_mastery`/`learning_velocity`/`independence_score`/`retention_score`. Trend stays heuristic (last-5 snapshot slope, §40).
 
 ## 5. Next Step
 
-Option A hardening (M23) is complete — `Forgetting_And_Retention.md` renamed, rate limiter bounded (LRU 5000 + purge_expired), `purge_expired_sessions` added, analytics switched to SQL aggregates/GROUP BY, evaluation harness (`brier_score`, `ece`, `calibration_bins`, `baseline_random/static`, `GET /api/evaluation/report` + `/health`) landed with 17 new tests (200 total passing, `ruff check` clean, frontend `api.evaluationReport` wired). Per your request Level 4 remains deferred. Next when you resume: Level 4.1 Unified Student Model per ROADMAP, or continue hardening (event idempotency key, frontend tests, C++ lane). No further code until you approve this branch or say `continue`.
+Level 4.1a (M24) in progress on `feature/unified-student-model` — unified projection landed, 13 new pure + API tests, `GET /api/learner/unified-state` + frontend `unifiedState()` wired, dashboard Unified card added. Next: **Level 4.1b — temporal `Mastery(t)`**: add `unified_state_snapshots` or `mastery_history` table so `Mastery(t)` becomes queryable over time (ROADMAP §33), unlocks 4.2 Temporal Student Modeling + 4.8 Model Calibration. Keep 4.3 Causal Experiments + 4.4 Bandits deferred until we have temporal data to evaluate them.

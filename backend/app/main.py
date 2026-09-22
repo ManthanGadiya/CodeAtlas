@@ -25,6 +25,7 @@ from app.retrieval.routes import router as retrieval_router
 from app.sessions.routes import router as sessions_router
 from app.transfer.routes import router as transfer_router
 from app.tutor.routes import router as tutor_router
+from app.unified.routes import router as unified_router
 
 
 def create_app() -> FastAPI:
@@ -174,6 +175,7 @@ def create_app() -> FastAPI:
     app.include_router(retrieval_router, prefix="/api")
     app.include_router(transfer_router, prefix="/api")
     app.include_router(evaluation_router, prefix="/api")
+    app.include_router(unified_router, prefix="/api")
     return app
 
 

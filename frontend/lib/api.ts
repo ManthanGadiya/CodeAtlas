@@ -442,4 +442,101 @@ export const api = {
     }>("/evaluation/report"),
 
   evaluationHealth: () => apiFetch<{ status: string; module: string; version: string }>("/evaluation/health"),
+
+  unifiedState: () =>
+    apiFetch<{
+      student_id: string;
+      model_version: string;
+      generated_at: string;
+      knowledge: {
+        overall_mastery: number;
+        confidence: number;
+        skills: Array<{
+          skill_slug: string;
+          skill_name: string;
+          mastery: number;
+          confidence: number;
+          reliability: string;
+          evidence_count: number;
+          retention: number | null;
+          last_practiced_at: string | null;
+        }>;
+        gaps: Array<{ skill_slug: string; skill_name: string; mastery: number }>;
+        strengths: Array<{ skill_slug: string; skill_name: string; mastery: number }>;
+        skill_count: number;
+      };
+      misconceptions: {
+        open_mistakes: Array<{
+          category_code: string;
+          category_name: string;
+          problem_slug: string;
+          severity: string;
+          confidence: number;
+          evidence_note: string | null;
+          detected_at: string;
+        }>;
+        recurring: Array<{
+          category_code: string;
+          category_name: string;
+          skill_slug: string;
+          occurrence_count: number;
+          confidence: number;
+          last_seen_at: string;
+        }>;
+        open_count: number;
+        recurring_count: number;
+      };
+      behavior: {
+        patterns: Array<{
+          behavior_type: string;
+          frequency: number;
+          severity: string;
+          trend: string;
+          confidence: number;
+          last_observed_at: string;
+        }>;
+        pattern_count: number;
+      };
+      retention: {
+        overview: Array<{
+          skill_slug: string;
+          skill_name: string;
+          stability: number;
+          retrieval_probability: number;
+          due: boolean;
+        }>;
+        due: Array<{ skill_slug: string; skill_name: string; retrieval_probability: number }>;
+        retention_score: number;
+        due_count: number;
+      };
+      performance: {
+        totals: { runs: number; submits: number; executions: number; success_rate: number | null };
+        problems: { attempted: number; completed: number };
+        success_rate: number | null;
+        recent_activity: Array<{
+          problem_slug: string;
+          problem_title: string;
+          mode: string;
+          status: string;
+          passed: number;
+          total: number;
+          runtime_ms: number | null;
+          at: string;
+        }>;
+      };
+      preferences: Record<string, unknown>;
+      learning_velocity: number;
+      trend: string;
+      summary: {
+        overall_mastery: number;
+        confidence: number;
+        retention_score: number;
+        independence_score: number;
+        learning_velocity: number;
+        trend: string;
+      };
+    }>("/learner/unified-state"),
+
+  unifiedHealth: () =>
+    apiFetch<{ status: string; module: string; version: string }>("/learner/unified-state/health"),
 };
