@@ -1,4 +1,4 @@
-"""Retention & forgetting tests — Phase 3.6 (docs/Forgeting_And_Retention.md)."""
+"""Retention & forgetting tests — Phase 3.6 (docs/Forgetting_And_Retention.md)."""
 
 import math
 from datetime import UTC, datetime, timedelta

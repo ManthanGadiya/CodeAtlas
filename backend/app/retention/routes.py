@@ -1,4 +1,4 @@
-"""Retention API — Phase 3.6 (docs/Forgeting_And_Retention.md, Data_Model §48-49)."""
+"""Retention API — Phase 3.6 (docs/Forgetting_And_Retention.md, Data_Model §48-49)."""
 
 from datetime import UTC, datetime
 

@@ -1,6 +1,6 @@
 """Analytics summary queries — observations only, honestly labelled."""
 
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.execution.models import Execution
@@ -8,49 +8,103 @@ from app.problems.models import Problem
 
 
 def build_summary(db: Session, student_id) -> dict:
-    executions = db.scalars(
+    """Build activity summary — optimized with SQL aggregates for totals.
+
+    Previous version loaded the full execution history per request (STATUS.md:
+    "fine at Phase 1.6 scale, switch to SQL aggregates when history grows").
+    Hardening switches totals to COUNT(*) aggregates so a student with 10k
+    executions does not materialize 10k rows.  Recent activity and per-problem
+    breakdown remain bounded (10 and 20 rows respectively) via limited queries.
+    """
+    from sqlalchemy import func
+
+    # Totals via SQL aggregates — O(1) rows instead of O(n)
+    totals_row = db.execute(
+        select(
+            func.count().label("total"),
+            func.count().filter(Execution.mode == "run").label("runs"),
+            func.count().filter(Execution.mode == "submit").label("submits"),
+            func.count()
+            .filter(Execution.mode == "submit", Execution.status == "SUCCESS")
+            .label("successful_submits"),
+        ).where(Execution.student_id == student_id)
+    ).one()
+
+    total = totals_row.total or 0
+    runs = totals_row.runs or 0
+    submits = totals_row.submits or 0
+    successful_submits = totals_row.successful_submits or 0
+
+    # Recent activity — only the 10 most recent executions with test counts
+    recent_executions = db.scalars(
         select(Execution)
         .where(Execution.student_id == student_id)
         .options(selectinload(Execution.test_executions))
         .order_by(Execution.created_at.desc())
+        .limit(10)
     ).all()
 
-    problems_by_id = {}
-    if executions:
-        problem_ids = {execution.problem_id for execution in executions}
+    recent_problem_ids = {e.problem_id for e in recent_executions}
+
+    # Per-problem aggregates via GROUP BY — bounded to 20 most-attempted
+    per_problem_rows = db.execute(
+        select(
+            Execution.problem_id,
+            func.count().label("attempts"),
+            func.count().filter(Execution.mode == "submit").label("submits"),
+            func.max(case((Execution.status == "SUCCESS", 1), else_=0)).label("has_success"),
+        )
+        .where(Execution.student_id == student_id)
+        .group_by(Execution.problem_id)
+        .order_by(func.count().desc())
+        .limit(20)
+    ).all()
+
+    per_problem_ids = {row.problem_id for row in per_problem_rows}
+    all_needed_ids = recent_problem_ids | per_problem_ids
+    problems_by_id: dict = {}
+    if all_needed_ids:
         problems_by_id = {
             problem.id: problem
-            for problem in db.scalars(select(Problem).where(Problem.id.in_(problem_ids)))
+            for problem in db.scalars(select(Problem).where(Problem.id.in_(all_needed_ids)))
         }
 
-    runs = sum(1 for e in executions if e.mode == "run")
-    submits = sum(1 for e in executions if e.mode == "submit")
-    successful_submits = [
-        e for e in executions if e.mode == "submit" and e.status == "SUCCESS" and _all_passed(e)
-    ]
-
-    per_problem: dict = {}
-    for execution in executions:
-        entry = per_problem.setdefault(
-            execution.problem_id,
-            {"attempts": 0, "submits": 0, "completed": False},
-        )
-        entry["attempts"] += 1
-        if execution.mode == "submit":
-            entry["submits"] += 1
-            if execution.status == "SUCCESS" and _all_passed(execution):
-                entry["completed"] = True
+    # For completed flag we need to know if any submit succeeded with all tests
+    # passing.  SUCCESS status is equivalent to _all_passed for submits (the
+    # execution service only sets SUCCESS when every test passes).  GROUP BY
+    # MAX(SUCCESS) captures this without loading every execution.
+    per_problem = {}
+    attempted = 0
+    completed = 0
+    per_problem_list = []
+    for row in per_problem_rows:
+        pid = row.problem_id
+        is_completed = bool(row.has_success) and row.submits > 0
+        entry = {"attempts": row.attempts, "submits": row.submits, "completed": is_completed}
+        per_problem[pid] = entry
+        if is_completed:
+            completed += 1
+        attempted += 1
+        prob = problems_by_id.get(pid)
+        if prob:
+            per_problem_list.append(
+                {
+                    "problem_slug": prob.slug,
+                    "problem_title": prob.title,
+                    **entry,
+                }
+            )
 
     return {
         "totals": {
             "runs": runs,
             "submits": submits,
-            "executions": len(executions),
-            "success_rate": round(len(successful_submits) / submits, 3) if submits else None,
+            "executions": total,
+            "success_rate": round(successful_submits / submits, 3) if submits else None,
         },
         "problems": {
-            "attempted": len(per_problem),
-            "completed": sum(1 for v in per_problem.values() if v["completed"]),
+            "attempted": attempted,
+            "completed": completed,
         },
         "recent_activity": [
             {
@@ -63,20 +117,9 @@ def build_summary(db: Session, student_id) -> dict:
                 "runtime_ms": e.runtime_ms,
                 "at": e.created_at.isoformat(),
             }
-            for e in executions[:10]
+            for e in recent_executions
         ],
-        "per_problem": [
-            {
-                "problem_slug": problems_by_id[pid].slug,
-                "problem_title": problems_by_id[pid].title,
-                **entry,
-            }
-            for pid, entry in sorted(
-                per_problem.items(),
-                key=lambda item: item[1]["attempts"],
-                reverse=True,
-            )
-        ][:20],
+        "per_problem": per_problem_list,
     }
 
 

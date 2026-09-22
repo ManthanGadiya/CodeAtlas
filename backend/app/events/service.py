@@ -32,7 +32,7 @@ SERVER_EVENT_TYPES = {
     # HINT_REQUESTED = student asked, HINT_SHOWN = hint actually delivered.
     "HINT_REQUESTED",
     "HINT_SHOWN",
-    # Phase 3.6: retention & forgetting (docs/Forgeting_And_Retention.md §52-53).
+    # Phase 3.6: retention & forgetting (docs/Forgetting_And_Retention.md §52-53).
     "RETRIEVAL_ATTEMPTED",
     # Phase 3.4: adaptive curriculum (docs/Adaptive_Curriculum.md §53-54).
     "CURRICULUM_DECISION",
