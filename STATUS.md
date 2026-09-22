@@ -1,9 +1,9 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-09-13  
-> **Project Status:** 🟢 Levels 1, 2 & 3 Complete — Level 3 Adaptive Intelligence Shipped (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7)  
+> **Last Updated:** 2026-09-19  
+> **Project Status:** 🟢 Levels 1, 2 & 3 Complete — Level 3 Adaptive Intelligence Shipped (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) + one-command `docker compose up`  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-3 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015), 3.2 Generator (0016), 3.3 Difficulty (0017), 3.5 Retrieval (0018), 3.7 Transfer (0019 transfer_evaluations) landed  
+> **Development Stage:** ROADMAP Levels 1-3 complete; Level 3 Phases 3.1 Tutor (0013), 3.6 Retention (0014), 3.4 Curriculum (0015), 3.2 Generator (0016), 3.3 Difficulty (0017), 3.5 Retrieval (0018), 3.7 Transfer (0019 transfer_evaluations) landed — `fix/missing-migrations-bug1-2` branch adds one-command stack + auto-migration fix for fingerprint/retention 500s  
 > **Primary Objective:** Level 4 deferred per request — stabilize Level 3, harden evaluation, no RL/research-grade today.
 
 ---
@@ -137,4 +137,4 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 
 ## 5. Next Step
 
-Level 3 (0019) is complete — all 7 Level 3 phases landed, 10 retrieval + 10 transfer tests passing, frontend build green. Per your request, **Level 4 (unified model, temporal modeling, causal experiments, RL policy, etc.) is deferred today.** Next when you resume: Level 4.1 Unified Student Model + evaluation hardening per ROADMAP. No further code until you say `continue`.
+Level 3 (0019) is complete — all 7 Level 3 phases landed, 10 retrieval + 10 transfer tests passing, frontend build green. `fix/missing-migrations-bug1-2` now provides one-command `docker compose up --build` (db + backend + frontend) with auto-migration for `problems.fingerprint` (0016) and `retention_states` (0014) plus actionable 503 hints. Per your request, **Level 4 (unified model, temporal modeling, causal experiments, RL policy, etc.) is deferred today.** Next when you resume: Level 4.1 Unified Student Model + evaluation hardening per ROADMAP. No further code until you say `continue`.

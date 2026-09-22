@@ -132,9 +132,23 @@ docker pull python:3.12-alpine   # one-time runner image
 
 With the engine running, authenticated submissions execute in an isolated container (no network, capped CPU/memory/processes, read-only filesystem). Endpoints: `POST /api/problems/{slug}/run` (visible examples) and `POST /api/problems/{slug}/submit` (all tests, hidden ones included). Without the engine you get a clear `503` telling you to start it.
 
-### Database (optional until DB-backed features land)
+### One-command stack (recommended)
 
-Start your Docker engine, then from the repository root:
+From the repository root with Docker Desktop running:
+
+```bash
+docker compose up --build
+```
+
+This starts **PostgreSQL + backend (http://localhost:8000) + frontend (http://localhost:3000)** together. The backend auto-runs `alembic upgrade head` and seeds the curated problems on boot, so a stale checkout no longer 500s on `problems.fingerprint` / `retention_states`. Rebuild after pulling new migrations: `docker compose up --build`.
+
+Open `http://localhost:3000` for the app and `http://localhost:8000/api/docs` for the API.
+
+> **Host-only dev still works** — `uvicorn app.main:app --reload` (backend/) and `npm run dev` (frontend/) — but `docker compose up` is the single entry point. The host default `DATABASE_URL` in `.env.example` uses `localhost:5433` (matching `docker compose` host port); inside the compose network the backend is wired to `db:5432` automatically.
+
+### Database (manual, without the full stack)
+
+If you only want the database:
 
 ```bash
 docker compose up -d db
