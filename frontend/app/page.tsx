@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ApiError, api, type AnalyticsSummary, type LearnerSummary } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/Skeleton";
+import MasterySparkline, { TrendBadge, type MasteryPoint } from "@/components/MasterySparkline";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -28,6 +29,92 @@ function severityBadge(severity: string) {
   if (severity === "HIGH") return "bg-red-100 text-red-800";
   if (severity === "MEDIUM") return "bg-amber-100 text-amber-800";
   return "bg-neutral-100 text-neutral-600";
+}
+
+function SkillHistoryRow({
+  skill,
+}: {
+  skill: { skill_slug: string; skill_name: string; mastery: number; confidence: number; reliability: string; evidence_count: number; last_practiced_at: string | null };
+}) {
+  const [open, setOpen] = useState(false);
+  const [points, setPoints] = useState<MasteryPoint[] | null>(null);
+  const [trend, setTrend] = useState<string>("UNKNOWN");
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (next && points === null && loadError === null) {
+      let cancelled = false;
+      api
+        .masteryHistory(skill.skill_slug, 30)
+        .then((data) => {
+          if (cancelled) return;
+          setPoints(data.points as unknown as MasteryPoint[]);
+          setTrend(data.trend);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          // Fetch failure is not evidence of absence — surface error, not empty.
+          setLoadError("couldn't load history");
+        });
+    }
+  }
+
+  return (
+    <li className="px-5 py-4">
+      <div className="flex items-center gap-3">
+        <span className="min-w-0 flex-1 truncate font-medium">{skill.skill_name}</span>
+        <span className="text-xs text-neutral-500">{masteryLabel(skill.mastery)}</span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            skill.reliability === "unknown"
+              ? "bg-neutral-100 text-neutral-600"
+              : "bg-sky-100 text-sky-800"
+          }`}
+        >
+          {skill.reliability === "unknown" ? "unknown" : "estimated"}
+        </span>
+        <button
+          onClick={toggle}
+          aria-expanded={open}
+          aria-label={`mastery history for ${skill.skill_name}`}
+          className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-600 hover:bg-neutral-50"
+        >
+          {open ? "hide history" : "history"}
+        </button>
+      </div>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-100">
+        <div
+          className="h-full rounded-full bg-neutral-900 transition-all"
+          style={{ width: `${Math.round(skill.mastery * 100)}%` }}
+        />
+      </div>
+      <p className="mt-1.5 text-xs text-neutral-500">
+        mastery {skill.mastery.toFixed(2)} · confidence {skill.confidence.toFixed(2)} ·{" "}
+        {skill.evidence_count} evidence ·{" "}
+        {skill.last_practiced_at
+          ? new Date(skill.last_practiced_at).toLocaleDateString()
+          : "never practiced"}
+      </p>
+      {open && (
+        <div className="mt-2 flex items-center gap-3">
+          {loadError !== null ? (
+            <span role="alert" className="text-xs text-red-600">
+              {loadError}
+            </span>
+          ) : points === null ? (
+            <span className="text-xs text-neutral-400">loading history…</span>
+          ) : (
+            <>
+              <MasterySparkline points={points} />
+              <TrendBadge trend={trend} />
+            </>
+          )}
+        </div>
+      )}
+    </li>
+  );
 }
 
 export default function DashboardPage() {
@@ -71,6 +158,8 @@ export default function DashboardPage() {
     behavior: { pattern_count: number };
     retention: { due_count: number };
   } | null>(null);
+  const [overallHistory, setOverallHistory] = useState<MasteryPoint[]>([]);
+  const [overallTrend, setOverallTrend] = useState<string>("UNKNOWN");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -123,6 +212,15 @@ export default function DashboardPage() {
       })
       .catch(() => {
         // unified state is additive — Level 4.1 projection
+      });
+    api
+      .unifiedHistory(30)
+      .then((data) => {
+        if (!cancelled) setOverallHistory(data.points as unknown as MasteryPoint[]);
+        if (!cancelled && data.trend) setOverallTrend(data.trend);
+      })
+      .catch(() => {
+        // history is additive — Level 4.1b temporal
       });
     return () => {
       cancelled = true;
@@ -183,6 +281,13 @@ export default function DashboardPage() {
             {unified.knowledge.strengths.length} · Open mistakes {unified.misconceptions.open_count} · Due{" "}
             {unified.retention.due_count}
           </p>
+          {overallHistory.length > 0 && (
+            <div className="mt-3 flex items-center gap-3">
+              <MasterySparkline points={overallHistory} />
+              <TrendBadge trend={overallTrend} />
+              <span className="text-xs text-neutral-500">last 30 days</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -321,34 +426,7 @@ export default function DashboardPage() {
           ) : (
             <ul className="mt-3 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
               {learner.skills.map((skill) => (
-                <li key={skill.skill_slug} className="px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="min-w-0 flex-1 truncate font-medium">{skill.skill_name}</span>
-                    <span className="text-xs text-neutral-500">{masteryLabel(skill.mastery)}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        skill.reliability === "unknown"
-                          ? "bg-neutral-100 text-neutral-600"
-                          : "bg-sky-100 text-sky-800"
-                      }`}
-                    >
-                      {skill.reliability === "unknown" ? "unknown" : "estimated"}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-100">
-                    <div
-                      className="h-full rounded-full bg-neutral-900 transition-all"
-                      style={{ width: `${Math.round(skill.mastery * 100)}%` }}
-                    />
-                  </div>
-                  <p className="mt-1.5 text-xs text-neutral-500">
-                    mastery {skill.mastery.toFixed(2)} · confidence {skill.confidence.toFixed(2)} ·{" "}
-                    {skill.evidence_count} evidence ·{" "}
-                    {skill.last_practiced_at
-                      ? new Date(skill.last_practiced_at).toLocaleDateString()
-                      : "never practiced"}
-                  </p>
-                </li>
+                <SkillHistoryRow key={skill.skill_slug} skill={skill} />
               ))}
             </ul>
           )}

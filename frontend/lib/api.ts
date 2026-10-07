@@ -539,4 +539,21 @@ export const api = {
 
   unifiedHealth: () =>
     apiFetch<{ status: string; module: string; version: string }>("/learner/unified-state/health"),
+
+  masteryHistory: (skillSlug: string, days = 30) =>
+    apiFetch<{
+      skill_slug: string;
+      days: number;
+      trend: string;
+      velocity: number;
+      points: Array<{ t: string; mastery: number; confidence: number | null; reason: string }>;
+    }>(`/learner/mastery-history?skill_slug=${encodeURIComponent(skillSlug)}&days=${days}`),
+
+  unifiedHistory: (days = 30) =>
+    apiFetch<{
+      days: number;
+      trend: string;
+      velocity: number;
+      points: Array<{ t: string; overall_mastery: number }>;
+    }>(`/learner/unified-history?days=${days}`),
 };
