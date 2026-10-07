@@ -250,3 +250,108 @@ def build_unified_state(db: Session, student_id: uuid.UUID) -> dict:
         db.rollback()
 
     return unified
+
+
+def get_mastery_history(
+    db: Session, student_id: uuid.UUID, skill_id: uuid.UUID, days: str | int | None = 30
+) -> dict:
+    """Per-skill Mastery(t) from append-only MasterySnapshot (Data_Model §31).
+
+    Orders by event timestamp ASC (Data_Model §79), filters to last `days`.
+    No new tables — replay is the history (Data_Model §65).
+    Timezone note (M1): MasterySnapshot.created_at is DateTime(timezone=True);
+    SQLite returns naive, Postgres aware. Cutoff is normalized to naive UTC
+    so the comparison works on SQLite; on Postgres the naive cutoff is coerced
+    using the session TimeZone (correct when pinned to UTC, the compose default).
+    """
+    from datetime import timedelta
+
+    from app.skills.models import MasterySnapshot
+    from app.unified.history import (
+        MAX_POINTS,
+        classify_trend,
+        compute_velocity_from_points,
+        downsample,
+        parse_days,
+        to_mastery_points,
+    )
+
+    days = parse_days(days)
+    # SQLite stores naive, Postgres aware — compare naive to stay compatible.
+    cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=days)
+    rows = db.scalars(
+        select(MasterySnapshot)
+        .where(
+            MasterySnapshot.student_id == student_id,
+            MasterySnapshot.skill_id == skill_id,
+            MasterySnapshot.created_at >= cutoff,  # type: ignore
+        )
+        .order_by(MasterySnapshot.created_at, MasterySnapshot.id)  # type: ignore
+        .limit(500)
+    ).all()
+    points = downsample(to_mastery_points(list(rows)), MAX_POINTS)
+    masteries = [p["mastery"] for p in points]
+    velocity = compute_velocity_from_points(masteries)
+    trend = classify_trend(velocity, len(points))
+    return {
+        "days": days,
+        "trend": trend,
+        "velocity": velocity,
+        "points": points,
+    }
+
+
+def get_overall_history(db: Session, student_id: uuid.UUID, days: str | int | None = 30) -> dict:
+    """Overall Mastery(t) = mean across skills present at each timestamp.
+
+    V1 naive mean, no interpolation — documented assumption. Trend may reflect
+    skill-set changes (new skill touched → new member in mean), not just
+    mastery changes — do not read composition shifts as learning. Same
+    timezone note as get_mastery_history (naive UTC cutoff, Postgres TZ=UTC).
+    Overall trend uses same six-way scale as per-skill history.
+    """
+    from datetime import timedelta
+
+    from app.skills.models import MasterySnapshot, StudentSkillState
+    from app.unified.history import (
+        MAX_POINTS,
+        bucket_overall_history,
+        classify_trend,
+        compute_velocity_from_points,
+        downsample,
+        parse_days,
+        to_mastery_points,
+    )
+
+    days = parse_days(days)
+    cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=days)
+    # Distinct skills the student has ever touched.
+    skill_ids = db.scalars(
+        select(StudentSkillState.skill_id).where(StudentSkillState.student_id == student_id)
+    ).all()
+    points_by_skill: dict[str, list[dict]] = {}
+    for sid in skill_ids:
+        rows = db.scalars(
+            select(MasterySnapshot)
+            .where(
+                MasterySnapshot.student_id == student_id,
+                MasterySnapshot.skill_id == sid,
+                MasterySnapshot.created_at >= cutoff,  # type: ignore
+            )
+            .order_by(MasterySnapshot.created_at, MasterySnapshot.id)  # type: ignore
+            .limit(500)
+        ).all()
+        pts = to_mastery_points(list(rows))
+        if pts:
+            points_by_skill[str(sid)] = pts
+    merged = bucket_overall_history(points_by_skill)
+    merged = downsample(merged, MAX_POINTS)
+    overall_vals = [p["overall_mastery"] for p in merged]
+    velocity = compute_velocity_from_points(overall_vals)
+    trend = classify_trend(velocity, len(merged))
+    return {
+        "days": days,
+        "trend": trend,
+        "velocity": velocity,
+        "points": merged,
+    }

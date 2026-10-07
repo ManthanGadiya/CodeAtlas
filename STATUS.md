@@ -1,10 +1,10 @@
 # CodeAtlas — Project Status
 
 > **Last Updated:** 2026-09-22  
-> **Project Status:** 🟢 Level 4.1 In Progress — Unified Student State (ROADMAP §32, Data_Model §8) — Level 4.1a aggregation landed  
+> **Project Status:** 🟢 Level 4.1b Landed (branch) — Temporal Mastery(t) queryable from snapshots + sparklines (ROADMAP §33, Data_Model §31)  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-3 complete + Hardening Option A merged (M23); Level 4.1 Unified Student Model in progress on `feature/unified-student-model` — deterministic projection `GET /api/learner/unified-state` combining Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences (ROADMAP §32)  
-> **Primary Objective:** Level 4.1 — build the unified student state (first research-grade projection) per owner go-ahead; still no RL/recommendation policy.
+> **Development Stage:** ROADMAP Levels 1-3 complete + Hardening Option A merged (M23) + Level 4.1a merged (M24); Level 4.1b temporal history on `feature/temporal-mastery` — `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` replaying append-only MasterySnapshot (no migration), 6-way trend per Learning_Model §32  
+> **Primary Objective:** Level 4.1b — make Mastery(t) queryable over time (first temporal projection) per owner go-ahead; still no RL/recommendation policy.
 
 ---
 
@@ -94,7 +94,8 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 | M21 | Transfer evaluation (Phase 3.7) — T0-T5 ladder (§50) via context_shift/boundary/constraint mutations, mastery ≥0.35 eligibility, excludes recent success, POST /transfer/schedule + /complete + due + history (Problem_Generator §49-51, 0019 transfer_evaluations) | 🟢 Complete |
 | M22 | Level 3 complete — all Level 3 phases (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) landed, verified, docs synced | 🟢 Complete |
 | M23 | Hardening Option A — docs rename + bounded rate limiter + session purge + SQL analytics + evaluation harness (Brier/ECE/baselines, GET /evaluation/report) — 200 tests passing | 🟢 Complete |
-| M24 | Unified student state — Level 4.1a (ROADMAP §32, Data_Model §8) — deterministic projection `GET /api/learner/unified-state` (Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences → StudentState) — persisted to `student_learning_states` — 213 tests passing | 🟡 In Progress |
+| M24 | Unified student state — Level 4.1a (ROADMAP §32, Data_Model §8) — deterministic projection `GET /api/learner/unified-state` (Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences → StudentState) — persisted to `student_learning_states` — 213 tests passing | 🟢 Complete |
+| M25 | Temporal Mastery(t) — Level 4.1b (ROADMAP §33, Data_Model §31) — `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` from MasterySnapshot replay (no migration), 6-way trend, days clamp 1-90, downsample 100, SVG sparklines + trend badges — 18 new tests, 229 non-docker passing | 🟡 In Progress (branch `feature/temporal-mastery`, awaiting PR review) |
 
 ## 3. Status Legend
 
@@ -137,4 +138,4 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 
 ## 5. Next Step
 
-Level 4.1a (M24) in progress on `feature/unified-student-model` — unified projection landed, 13 new pure + API tests, `GET /api/learner/unified-state` + frontend `unifiedState()` wired, dashboard Unified card added. Next: **Level 4.1b — temporal `Mastery(t)`**: add `unified_state_snapshots` or `mastery_history` table so `Mastery(t)` becomes queryable over time (ROADMAP §33), unlocks 4.2 Temporal Student Modeling + 4.8 Model Calibration. Keep 4.3 Causal Experiments + 4.4 Bandits deferred until we have temporal data to evaluate them.
+Level 4.1b (M25) landed on `feature/temporal-mastery` — per-skill + overall Mastery(t) replay from MasterySnapshot (no new tables), 6-way trend (Learning_Model §32), days clamp + downsample cap, 18 tests, SVG sparklines + per-skill history rows + overall trend badge on dashboard. Reviewer pass applied (error-not-empty, `days: str | int | None`, isolation + cap tests, TZ/composition notes). Next: open PR → merge → propose **Level 4.2 Temporal Student Modeling** (personalized forgetting curves λ_skill, retention-decay overlay) + **4.8 Model Calibration** tracking via the Brier harness. Keep 4.3 Causal + 4.4 Bandits deferred until temporal data accumulates.
