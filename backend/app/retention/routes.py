@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
@@ -31,10 +31,42 @@ class RetentionItem(BaseModel):
     due: bool
 
 
+class ForgettingCurve(BaseModel):
+    lambda_: float = Field(alias="lambda")
+    half_life_days: float | None
+    curve_points: list[dict]
+    stability: float
+    model_version: str
+
+
 @router.get("/overview", response_model=list[RetentionItem])
 def overview(db: DbSession, student: CurrentUser) -> list[RetentionItem]:
     data = retention_service.overview_for_student(db, student.id)
     return [RetentionItem(**item) for item in data]
+
+
+@router.get("/forgetting-curve", response_model=ForgettingCurve)
+def forgetting_curve(
+    db: DbSession,
+    student: CurrentUser,
+    skill_slug: str = Query(min_length=1, description="Skill slug, e.g. arrays"),
+) -> ForgettingCurve:
+    """Personalized forgetting curve — Level 4.2 (ROADMAP §33, §48).
+
+    Returns fitted λ (forgetting rate 1/days), half-life, and curve points
+    for t=0..60 days. Requires λ to be estimated from Mastery(t) history
+    (via RETRIEVAL_ATTEMPTED events triggering estimate_forgetting_rate).
+    """
+    skill = db.scalar(select(Skill).where(Skill.slug == skill_slug))
+    if skill is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Skill not found")
+    result = retention_service.get_forgetting_curve(db, student.id, skill.id)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Forgetting rate not yet estimated — practice retrieval first",
+        )
+    return ForgettingCurve(**result)
 
 
 @router.post("/review", response_model=RetentionItem)

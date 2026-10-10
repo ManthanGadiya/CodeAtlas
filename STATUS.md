@@ -1,30 +1,31 @@
 # CodeAtlas — Project Status
 
-> **Last Updated:** 2026-09-22  
-> **Project Status:** 🟢 Level 4.1b Landed (branch) — Temporal Mastery(t) queryable from snapshots + sparklines (ROADMAP §33, Data_Model §31)  
+> **Last Updated:** 2026-10-10  
+> **Project Status:** 🟡 Level 4.2 In Progress — personalized forgetting-rate backend slice done on branch (ROADMAP §33)  
 > **Current Version:** 0.1.0-dev  
-> **Development Stage:** ROADMAP Levels 1-3 complete + Hardening Option A merged (M23) + Level 4.1a merged (M24); Level 4.1b temporal history on `feature/temporal-mastery` — `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` replaying append-only MasterySnapshot (no migration), 6-way trend per Learning_Model §32  
-> **Primary Objective:** Level 4.1b — make Mastery(t) queryable over time (first temporal projection) per owner go-ahead; still no RL/recommendation policy.
+> **Development Stage:** ROADMAP Levels 1-3 complete + Hardening Option A (M23) + Level 4.1a Unified Student State (M24) + Level 4.1b Temporal Mastery(t) (M25) all merged to main. Level 4.1 is complete. Level 4.2 backend slice (M26: λ estimation + forgetting-curve endpoint, migration 0020) implemented and tested on `feature/temporal-modeling`, awaiting review.  
+> **Primary Objective:** Level 4.2 Temporal Student Modeling — personalized forgetting curves λ_skill, retention-decay overlay on Mastery(t), calibration tracking.
 
 ---
 
 # 1. Current State
 
-ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) plus Hardening Option A (evaluation harness). A student can register, browse seeded Python problems, **generate validated variants**, get **a personalized next-problem recommendation**, ask the tutor for socratic hints, see which skills are fading, **practice at the right difficulty**, **receive scheduled retrieval practice**, and **be tested for transfer on the same skill in a new surface** — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval, generated problem, difficulty estimate, and transfer probe feeds the adaptive loop. **Level 4.1** now adds the first research-grade projection: `GET /api/learner/unified-state` — a deterministic aggregation of Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences into one `StudentState` (ROADMAP §32).
+ROADMAP Levels 1, 2 and 3 are complete (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) plus Hardening Option A (evaluation harness). A student can register, browse seeded Python problems, **generate validated variants**, get **a personalized next-problem recommendation**, ask the tutor for socratic hints, see which skills are fading, **practice at the right difficulty**, **receive scheduled retrieval practice**, and **be tested for transfer on the same skill in a new surface** — while every execution, code version, learning event, mistake, behavior, tutor interaction, retrieval, generated problem, difficulty estimate, and transfer probe feeds the adaptive loop. **Level 4.1** now adds the first research-grade projections: `GET /api/learner/unified-state` (StudentState snapshot) + `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` (Mastery(t) temporal replay from snapshots, no migration) — combining Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences into one StudentState with temporal Mastery(t) (ROADMAP §32-33).
 
- - FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer + evaluation + unified-state**)
-- Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next + adaptive difficulty + retrieval + transfer due + unified state card**), problem browser (includes generated + transfer variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
-- Docker sandboxed execution with CI-verified end-to-end tests
-- Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events + evaluation (Brier/ECE) + unified-state (4.1)**
-- Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
-- Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
-- **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
-- **Generator engine**: validated mutation pipeline (§59: syntax → tests → solution → difficulty → duplicate fingerprint → quality ≥0.5) with three deterministic transforms, auditable provenance
-- **Difficulty engine**: 6-dimensional vector + IRT P(success) + zone + target band calibrated from success_rate
-- **Retrieval engine**: deliberate scheduling (§20-22: S×0.8, ×2/×0.5/×0.8), ladder recognition→transfer ramped by stability, interleaving, auto-next, RETRIEVAL_ATTEMPTED audit
-- **Transfer engine**: T0-T5 ladder (§50) context_shift variants, mastery ≥0.35 eligibility, excludes recent success, auditable TRANSFER_ATTEMPTED
-- **Unified state engine (Level 4.1a)**: deterministic projection (Data_Model §8, §32, §64) — `overall_mastery`/`confidence`/`retention_score`/`independence_score`/`learning_velocity` + gaps/strengths/misconceptions/behavior/due, mirrored to `student_learning_states` (was placeholder, now live). No new tables — pure aggregation, testable, event-sourcing friendly.
-- GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
+  - FastAPI backend: modular monolith (auth, users, problems, execution, events, analytics, skills, mistakes, behavior, **tutor + AI gateway + retention + curriculum + generator + difficulty + retrieval + transfer + evaluation + unified-state + temporal-history**)
+  - Next.js frontend: login/bootstrap, dashboard (personalized learner model + **retention due + recommended next + adaptive difficulty + retrieval + transfer due + unified state card + temporal sparklines**), problem browser (includes generated + transfer variants), problem detail with editor + **TutorPanel (hint ladder 0-7)**
+  - Docker sandboxed execution with CI-verified end-to-end tests
+  - Immutable learning-event stream + code artifact version chains + analytics appendix + **tutor (0013) + retention (0014) + curriculum decisions (0015) + generator fields (0016) + difficulty vectors (0017) + retrieval schedules (0018) + transfer evaluations (0019) + HINT/RETRIEVAL/CURRICULUM_DECISION/PROBLEM_GENERATED/TRANSFER_ATTEMPTED events + evaluation (Brier/ECE) + unified-state (4.1a) + temporal-history (4.1b)**
+  - Deterministic tutoring loop: Observe → Diagnose → Minimal hint → Escalate → offline templates
+  - Retention engine: R(t)=exp(-t/S) with adaptive stability (×2/×0.5, caps 0.5–60d), live decay on read
+  - **Curriculum engine**: rule-based scorer (§55) weighting skill gap, retention due, mistake recurrence, difficulty fit, repetition penalty, prerequisite pivot — explains every choice
+  - **Generator engine**: validated mutation pipeline (§59: syntax → tests → solution → difficulty → duplicate fingerprint → quality ≥0.5) with three deterministic transforms, auditable provenance
+  - **Difficulty engine**: 6-dimensional vector + IRT P(success) + zone + target band calibrated from success_rate
+  - **Retrieval engine**: deliberate scheduling (§20-22: S×0.8, ×2/×0.5/×0.8), ladder recognition→transfer ramped by stability, interleaving, auto-next, RETRIEVAL_ATTEMPTED audit
+  - **Transfer engine**: T0-T5 ladder (§50) context_shift variants, mastery ≥0.35 eligibility, excludes recent success, auditable TRANSFER_ATTEMPTED
+  - **Unified state engine (Level 4.1a)**: deterministic projection (Data_Model §8, §32, §64) — `overall_mastery`/`confidence`/`retention_score`/`independence_score`/`learning_velocity` + gaps/strengths/misconceptions/behavior/due, mirrored to `student_learning_states` (was placeholder, now live). No new tables — pure aggregation, testable, event-sourcing friendly.
+  - **Temporal history engine (Level 4.1b)**: Mastery(t) replay from append-only MasterySnapshot (Data_Model §31, §65), per-skill + overall, 6-way trend (Learning_Model §32), days clamp + downsample cap, SVG sparklines + per-skill history rows + overall trend badge. No new tables — replay is history.
+  - GitHub Actions CI: lint + tests on Python 3.11–3.13, PostgreSQL migration reversibility, real-container sandbox e2e
 
 ## Level 1 Exit Criteria — met
 
@@ -95,7 +96,8 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 | M22 | Level 3 complete — all Level 3 phases (3.1, 3.6, 3.4, 3.2, 3.3, 3.5, 3.7) landed, verified, docs synced | 🟢 Complete |
 | M23 | Hardening Option A — docs rename + bounded rate limiter + session purge + SQL analytics + evaluation harness (Brier/ECE/baselines, GET /evaluation/report) — 200 tests passing | 🟢 Complete |
 | M24 | Unified student state — Level 4.1a (ROADMAP §32, Data_Model §8) — deterministic projection `GET /api/learner/unified-state` (Knowledge + Misconceptions + Behavior + Retention + Performance + Preferences → StudentState) — persisted to `student_learning_states` — 213 tests passing | 🟢 Complete |
-| M25 | Temporal Mastery(t) — Level 4.1b (ROADMAP §33, Data_Model §31) — `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` from MasterySnapshot replay (no migration), 6-way trend, days clamp 1-90, downsample 100, SVG sparklines + trend badges — 18 new tests, 229 non-docker passing | 🟡 In Progress (branch `feature/temporal-mastery`, awaiting PR review) |
+| M25 | Temporal Mastery(t) — Level 4.1b (ROADMAP §33, Data_Model §31) — `GET /api/learner/mastery-history` + `GET /api/learner/unified-history` from MasterySnapshot replay (no migration), 6-way trend, days clamp 1-90, downsample 100, SVG sparklines + trend badges — 18 new tests, 231 non-docker passing | 🟢 Complete |
+| M26 | Personalized forgetting rate — Level 4.2 backend (ROADMAP §33, Data_Model §31) — `forgetting_rate` λ (1/days) on `RetentionState` (migration 0020, nullable + timestamp + index), exponential fit `fit_forgetting_rate`/`estimate_forgetting_rate` on MasterySnapshot elapsed-time axis, `GET /api/retention/forgetting-curve?skill_slug=` (λ + half-life + 13 curve points t=0..60), re-estimated on `RETRIEVAL_ATTEMPTED` — 10 new tests, 241 non-docker passing | 🟡 In Progress (branch `feature/temporal-modeling`, awaiting PR review; dashboard card + calibration hook remaining) |
 
 ## 3. Status Legend
 
@@ -122,7 +124,7 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 - Run-mode attempts are never classified — exploratory practice is out of scope for V1 detection.
 - Mistake severity/confidence values and pattern-confidence growth are explicit initial assumptions, not validated constants.
 - Evidence weights (attempt taper 1.0/0.7/0.5, failed-submit 0.4, error-outcome 0.3, supporting-role ×0.5) are explicit initial assumptions too; now evaluated via `GET /api/evaluation/report` baselines (random/static) per docs/Evaluation_Framework.md but still hypotheses.
-- Retention encoding-strength factors (§8-9) and personalized per-skill forgetting rates (§16) remain future work.
+- Retention encoding-strength factors (§8-9) remain future work. Personalized per-skill forgetting rates (§16) now have a V1 backend estimator (λ via exponential fit on MasterySnapshot, migration 0020, uncalibrated); dashboard overlay + calibration tracking still pending.
 - Problem generation is mutation-only (3 deterministic variants from curated seeds); LLM free-form generation remains future work — pipeline ready to plug a provider behind validator. Difficulty calibration from real cohort signals (§86-87) remains dampened single-student; cohort Bayesian calibration is future work.
 - Retrieval scheduling is rule-based (due = prob<0.6 or overdue + 2 weakest interleaved); importance-weighted retention priority (§26) and interleaved micro-retrieval (§67) remain stubbed; spaced-repetition baselines (Leitner/Half-Life) await evaluation — baseline harness now available via `app/evaluation/baselines.py`.
 - Transfer evaluation is single-skill T2 via generator `context_shift`; higher levels (T4 hidden technique, T5 multi-concept) and cross-skill transfer graphs remain future work; transfer history is local, not yet calibration-weighted into mastery.
@@ -138,4 +140,10 @@ Level 3 Adaptive Intelligence is complete. The system now answers end-to-end: *w
 
 ## 5. Next Step
 
-Level 4.1b (M25) landed on `feature/temporal-mastery` — per-skill + overall Mastery(t) replay from MasterySnapshot (no new tables), 6-way trend (Learning_Model §32), days clamp + downsample cap, 18 tests, SVG sparklines + per-skill history rows + overall trend badge on dashboard. Reviewer pass applied (error-not-empty, `days: str | int | None`, isolation + cap tests, TZ/composition notes). Next: open PR → merge → propose **Level 4.2 Temporal Student Modeling** (personalized forgetting curves λ_skill, retention-decay overlay) + **4.8 Model Calibration** tracking via the Brier harness. Keep 4.3 Causal + 4.4 Bandits deferred until temporal data accumulates.
+Level 4.1 (M24 + M25) complete — Unified Student State + Temporal Mastery(t) both merged to main. **Level 4.2 backend slice (M26 steps 1-2) done on `feature/temporal-modeling`**: `forgetting_rate` λ on `RetentionState` (migration 0020) updated per `RETRIEVAL_ATTEMPTED` via exponential fit on `Mastery(t)` elapsed-time axis + `GET /api/retention/forgetting-curve?skill_slug=arrays` → λ + half-life + 13 curve points (10 new tests, 241 non-docker passing, ruff clean).
+
+Remaining for 4.2 (thin vertical slice):
+3. Dashboard: "What you're forgetting" card with personalized half-life + early-warning flag
+4. Calibration hook: `GET /api/evaluation/calibration` → `{skill, predicted_p, actual_p, n}` over time (uses Brier/ECE harness from Option A)
+
+Keep 4.3 Causal + 4.4 Bandits deferred until temporal data accumulates. 4.8 Calibration runs in parallel via the evaluation harness.

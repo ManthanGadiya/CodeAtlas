@@ -5,6 +5,8 @@ Design choices (rule-based, §56 Version 1):
   - Stability S grows on success, shrinks on failure (§54)
   - Scheduling: next_review = now + S * schedule_factor (§22)
   - Encoding strength factors deferred to later (§8-9) — V1 uses mastery + evidence
+  - Personalized forgetting rate λ (Level 4.2) estimated from Mastery(t) history
+    via exponential fit on mastery snapshots.
 
 The engine is pure where possible so tests can pin the math without DB.
 """
@@ -66,6 +68,151 @@ def days_since(last: datetime | None, now: datetime) -> float | None:
 def _schedule_next(stability: float, now: datetime) -> datetime:
     interval_days = max(1.0, stability * SCHEDULE_FACTOR)
     return now + timedelta(days=interval_days)
+
+
+def fit_forgetting_rate(time_days: list[float], mastery_values: list[float]) -> float | None:
+    """Fit exponential decay mastery(t) = a * exp(-λ * t) + c to history.
+
+    Uses linear regression on log(mastery - c) where c = min(mastery) * 0.9
+    to estimate λ (forgetting rate in 1/days). Returns λ in 1/days, or None
+    if insufficient data or fit fails.
+
+    V1 assumption: mastery decays exponentially between retrievals.
+    This is a V1 estimator — uncalibrated, documented as such.
+    """
+    if len(time_days) < 3 or len(mastery_values) < 3:
+        return None
+    if len(time_days) != len(mastery_values):
+        return None
+    # Need at least 2 days span for meaningful exponential fit
+    if max(time_days) - min(time_days) < 2.0:
+        return None
+
+    # Filter out invalid points
+    valid = [(t, m) for t, m in zip(time_days, mastery_values, strict=False) if m > 0]
+    if len(valid) < 3:
+        return None
+
+    t_vals, m_vals = zip(*valid, strict=True)  # noqa: B905 - transpose, equal-length by construction
+
+    # Estimate asymptote c as 90% of minimum observed mastery
+    c = min(m_vals) * 0.9
+
+    # Linear regression on log(m - c) = log(a) - λ * t
+    try:
+        y_vals = [math.log(m - c) for m in m_vals]
+    except ValueError:
+        return None
+
+    # Simple linear regression: y = -λ * t + log(a)
+    n = len(t_vals)
+    sum_t = sum(t_vals)
+    sum_y = sum(y_vals)
+    sum_ty = sum(t * y for t, y in zip(t_vals, y_vals, strict=True))
+    sum_t2 = sum(t * t for t in t_vals)
+
+    denom = n * sum_t2 - sum_t * sum_t
+    if abs(denom) < 1e-9:
+        return None
+
+    slope = (n * sum_ty - sum_t * sum_y) / denom  # slope = -λ
+    lambda_est = -slope
+
+    # Sanity bounds: λ in [0.001, 2.0] 1/days (half-life 0.35–693 days)
+    if lambda_est <= 0.001 or lambda_est > 2.0:
+        return None
+
+    return round(lambda_est, 6)
+
+
+def estimate_forgetting_rate(
+    db: Session, student_id: uuid.UUID, skill_id: uuid.UUID, now: datetime | None = None
+) -> float | None:
+    """Estimate personalized forgetting rate λ from MasterySnapshot history.
+
+    Queries MasterySnapshot for the (student, skill), converts to (days_ago, mastery)
+    points, and fits exponential decay. Returns λ in 1/days, or None if
+    insufficient history (need ≥3 snapshots spanning ≥2 days).
+
+    Uses MasterySnapshot.new_mastery as the mastery signal (Data_Model §31).
+    """
+    from app.skills.models import MasterySnapshot
+
+    now = now or datetime.now(UTC)
+    cutoff = now - timedelta(days=90)  # Only look at last 90 days
+
+    rows = db.scalars(
+        select(MasterySnapshot)
+        .where(
+            MasterySnapshot.student_id == student_id,
+            MasterySnapshot.skill_id == skill_id,
+            MasterySnapshot.created_at >= cutoff,  # type: ignore
+        )
+        .order_by(MasterySnapshot.created_at)  # type: ignore
+    ).all()
+
+    if len(rows) < 3:
+        return None
+
+    # Convert to (elapsed_days, mastery) pairs — t=0 at earliest snapshot,
+    # increasing forward in time so decay appears as decreasing mastery.
+    stamped = []
+    for row in rows:
+        created = row.created_at
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=UTC)
+        stamped.append((created, float(row.new_mastery)))
+    stamped.sort(key=lambda p: p[0])
+    earliest = stamped[0][0]
+
+    time_days = [(c - earliest).total_seconds() / 86400.0 for c, _ in stamped]
+    mastery_vals = [m for _, m in stamped]
+
+    # Need at least 2 days span for meaningful fit
+    if time_days[-1] - time_days[0] < 2.0:
+        return None
+
+    return fit_forgetting_rate(time_days, mastery_vals)
+
+
+def get_forgetting_curve(
+    db: Session,
+    student_id: uuid.UUID,
+    skill_id: uuid.UUID,
+    now: datetime | None = None,
+) -> dict | None:
+    """Get personalized forgetting curve for a skill.
+
+    Returns dict with:
+      - lambda: forgetting rate λ (1/days)
+      - half_life_days: ln(2) / λ
+      - curve_points: list of {t_days, retention_probability} for t=0..60
+      - stability: current stability S (days)
+      - model_version
+
+    Returns None if λ not yet estimated.
+    """
+    now = now or datetime.now(UTC)
+    state = db.get(RetentionState, (student_id, skill_id))
+    if state is None or state.forgetting_rate is None:
+        return None
+
+    lambda_val = state.forgetting_rate
+    half_life = math.log(2) / lambda_val if lambda_val > 0 else None
+
+    # Generate curve points for t = 0 to 60 days
+    curve_points = []
+    for t in range(0, 61, 5):
+        retention = math.exp(-lambda_val * t)
+        curve_points.append({"t_days": t, "retention": round(retention, 3)})
+
+    return {
+        "lambda": lambda_val,
+        "half_life_days": round(half_life, 1) if half_life else None,
+        "curve_points": curve_points,
+        "stability": round(state.stability, 2),
+        "model_version": state.model_version,
+    }
 
 
 def get_or_create_state(
@@ -159,6 +306,15 @@ def record_retrieval(
         state.retrieval_probability = 0.45
         state.next_recommended_review = now  # due now — retry today
     state.model_version = MODEL_VERSION
+    # Estimate forgetting rate from Mastery(t) history (Level 4.2)
+    # Only re-estimate periodically to avoid noisy updates
+    try:
+        lambda_est = estimate_forgetting_rate(db, student_id, skill_id, now)
+        if lambda_est is not None:
+            state.forgetting_rate = lambda_est
+            state.forgetting_rate_updated_at = now
+    except Exception:  # noqa: BLE001
+        pass
     # Mirror
     skill_state = db.get(StudentSkillState, (student_id, skill_id))
     if skill_state is not None:
@@ -176,6 +332,7 @@ def record_retrieval(
                 "success": success,
                 "stability": round(state.stability, 2),
                 "retrieval_probability": round(state.retrieval_probability, 3),
+                "forgetting_rate": state.forgetting_rate,
             },
         )
     except Exception:  # noqa: BLE001
