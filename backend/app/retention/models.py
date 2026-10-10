@@ -57,3 +57,9 @@ class RetentionState(Base):
         default=lambda: datetime.now(UTC),
         server_default=func.now(),
     )
+    # Personalized forgetting rate λ (1/days) estimated from Mastery(t) history.
+    # See docs/Forgetting_And_Retention.md §16, §55-56.
+    forgetting_rate: Mapped[float | None] = mapped_column(Float, nullable=True)
+    forgetting_rate_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
